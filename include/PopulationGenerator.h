@@ -17,7 +17,7 @@ public:
 
     // generator kolejnej Generacji X
     std::vector<DecisionTree>
-    generateNextPopulation(const std::vector<DecisionTree>& prevPopulation, int populationSize);
+    generateNextPopulation(const std::vector<EvaluatedTree>& prevPopulation, int populationSize);
 
     std::vector<EvaluatedTree> evaluatePopulation(const std::vector<DecisionTree>& population, const Phenotype& baseSolution);
 
@@ -39,7 +39,7 @@ public:
 
 private:
     const TaskGraph& graph;
-    const EvolutionParams params{};
+    const EvolutionParams params;
     const int numberOfChilds;
     std::mt19937_64 rng;
 

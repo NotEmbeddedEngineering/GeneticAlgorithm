@@ -65,12 +65,15 @@ std::vector<DecisionTree> PopulationGenerator::generatePopulationZero(int popula
 }
 
 std::vector<DecisionTree> PopulationGenerator::generateNextPopulation(
-    const std::vector<DecisionTree>& prevPopulation, int populationSize) {
+    const std::vector<EvaluatedTree>& prevPopulation, int populationSize) {
 
     std::vector<DecisionTree> population;
     population.reserve(populationSize);
 
-
+    // 1. Klonowanie
+    // 2. Krzyżowanie
+    // 3. Mutacja
+    // TODO
 }
 
 
@@ -94,6 +97,6 @@ Phenotype PopulationGenerator::run(const Phenotype& initialSolution) {
 
     for (int gen = 0; gen < params.maxGenerations; ++gen) {
         auto evaluated = evaluatePopulation(population, initialSolution);
-        double currentBest = std::max_element(std::ranges(evaluated.phenotype))
+        double currentBest; // TODO
     }
 }
