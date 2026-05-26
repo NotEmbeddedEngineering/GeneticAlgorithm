@@ -23,6 +23,7 @@ private:
 
     // processorToChannel[processorId] = channelId
     // -1 oznacza brak przypisanej szyny
+    // TODO rozróżnienie w przypadku dwóch procesorów PP
     std::vector<int> processorToChannel;
 
     // --- Wyniki ---
