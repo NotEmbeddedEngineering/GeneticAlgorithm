@@ -1,0 +1,18 @@
+#pragma once
+
+// Typy operacji
+enum class FunctionType {
+    NO_OPERATION,
+
+    CHANGE_PROCESSOR_RANDOM,
+    MOVE_TASK_TO_FASTEST_PROCESSOR,
+    MOVE_TASK_TO_CHEAPEST_PROCESSOR,
+    MOVE_TASK_TO_LEAST_BUSY_PROCESSOR,
+
+    CHANGE_CHANNEL_RANDOM,
+    MOVE_PROCESSOR_TO_BEST_BANDWIDTH_CHANNEL,
+    MOVE_PROCESSOR_TO_CHEAPEST_CHANNEL,
+    // TODO
+
+    COUNT // funkcja do wyliczenia ilości funkcji
+};
