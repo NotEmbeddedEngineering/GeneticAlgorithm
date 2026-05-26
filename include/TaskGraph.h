@@ -2,6 +2,8 @@
 
 #include <string>
 #include <vector>
+#include <stdexcept>
+#include <format>
 
 struct CommunicationEdge {
     int sourceTaskId;
@@ -11,7 +13,9 @@ struct CommunicationEdge {
 
 struct Processor {
     int cost;
-    int type;
+    int type; // HC - 0, PP -1
+    constexpr bool isHC() const {return type == 0;}
+    constexpr bool isPP() const {return type == 1;}
 };
 
 struct Channel {
@@ -42,15 +46,19 @@ struct TaskGraph {
     std::vector<std::vector<int>> costs;
 
     int getTime(size_t procID, size_t taskID)const{
+        if(procID >= numProcessors || taskID >= numTasks) throw std::logic_error(std::format("Resource out of range! Requested time for task {}/{} and proc {}/{}",taskID,numTasks-1,procID,numProcessors-1));
         return times[procID][taskID];
     }
     int getCost(size_t procID, size_t taskID)const{
+        if(procID >= numProcessors || taskID >= numTasks) throw std::logic_error(std::format("Resource out of range! Requested cost for task {}/{} and proc {}/{}",taskID,numTasks-1,procID,numProcessors-1));
         return costs[procID][taskID];
     }
     int& getTime(size_t procID, size_t taskID){
+        if(procID >= numProcessors || taskID >= numTasks) throw std::logic_error(std::format("Resource out of range! Requested time for task {}/{} and proc {}/{}",taskID,numTasks-1,procID,numProcessors-1));
         return times[procID][taskID];
     }
     int& getCost(size_t procID, size_t taskID){
+        if(procID >= numProcessors || taskID >= numTasks) throw std::logic_error(std::format("Resource out of range! Requested cost for task {}/{} and proc {}/{}",taskID,numTasks-1,procID,numProcessors-1));
         return costs[procID][taskID];
     }
 };
