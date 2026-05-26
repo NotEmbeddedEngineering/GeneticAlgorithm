@@ -22,7 +22,7 @@ public:
     std::vector<EvaluatedTree> evaluatePopulation(const std::vector<DecisionTree>& population, const Phenotype& baseSolution);
 
     // Tutaj funkcje do wybierania rodzicow - metoda RANKINGOWA
-    std::vector<DecisionTree> selectParents(const std::vector<DecisionTree>& population,
+    std::vector<EvaluatedTree> selectParents(const std::vector<EvaluatedTree>& population,
                                             int numParents);
 
     // bierzemy Drzewo A i Drzewo B, losujemy po jednym wezle i odcinami i zamieniamy miejscami(krzyżowanie)

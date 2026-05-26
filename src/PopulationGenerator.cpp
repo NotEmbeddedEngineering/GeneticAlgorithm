@@ -67,12 +67,33 @@ std::vector<DecisionTree> PopulationGenerator::generatePopulationZero(int popula
 std::vector<DecisionTree> PopulationGenerator::generateNextPopulation(
     const std::vector<EvaluatedTree>& prevPopulation, int populationSize) {
 
-    std::vector<DecisionTree> population;
-    population.reserve(populationSize);
+    std::vector<DecisionTree> nextPopulation;
+    nextPopulation.reserve(populationSize);
 
+
+    std::vector<EvaluatedTree> clones = selectParents(prevPopulation, params.numClones);
     // 1. Klonowanie
+    for (int i = 0; i < params.numClones && nextPopulation.size() < populationSize; ++i) {
+        nextPopulation.push_back(clones[i].tree);
+    }
+
+
     // 2. Krzyżowanie
+    std::vector<EvaluatedTree> parents = selectParents(prevPopulation, params.numCrossovers);
+    std::ranges::shuffle(parents, rng);
+
+    for (int i = 0; i < params.numCrossovers; i += 2) {
+        DecisionTree& mother = parents[i].tree;
+        DecisionTree& father = parents[i + 1].tree;
+        crossover(mother, father);
+
+        nextPopulation.push_back(mother);
+        nextPopulation.push_back(father);
+    }
+
     // 3. Mutacja
+    std::vector<EvaluatedTree> mutants = selectParents(prevPopulation, params.numMutations);
+
     // TODO
 }
 
