@@ -2,9 +2,9 @@
 
 #include <algorithm>
 
-PopulationGenerator::PopulationGenerator(const TaskGraph &graph, const int numberOfChilds)
-    : graph(graph), numberOfChilds(numberOfChilds), rng(std::random_device{}()) {
-}
+PopulationGenerator::PopulationGenerator(const TaskGraph& graph, const int numberOfChilds,
+                                         EvolutionParams& params)
+    : graph(graph), params(params), numberOfChilds(numberOfChilds), rng(std::random_device{}()) {}
 
 FunctionType PopulationGenerator::randomFunctionType() {
     std::uniform_int_distribution<int> dist(1, static_cast<int>(FunctionType::COUNT));
@@ -34,7 +34,7 @@ std::unique_ptr<Node> PopulationGenerator::createRandomNode() {
     return std::make_unique<Node>(type, taskId, processorId, channelId);
 }
 
-void PopulationGenerator::expandTree(Node *currentNode, int remainingDepth) {
+void PopulationGenerator::expandTree(Node* currentNode, int remainingDepth) {
     if (remainingDepth <= 0)
         return;
 
@@ -54,13 +54,13 @@ DecisionTree PopulationGenerator::buildSingleTree(int maxDepth) {
     return DecisionTree(std::move(root));
 }
 
-std::vector<DecisionTree> PopulationGenerator::generatePopulationZero(int populationSize, Phenotype &baseSolution) {
+std::vector<DecisionTree> PopulationGenerator::generatePopulationZero(int populationSize,
+                                                                      Phenotype& baseSolution) {
     std::vector<DecisionTree> population;
     population.reserve(populationSize);
 
-    std::generate_n(std::back_inserter(population), populationSize, [this]() {
-        return buildSingleTree(params.maxTreeDepth);
-    });
+    std::generate_n(std::back_inserter(population), populationSize,
+                    [this]() { return buildSingleTree(params.maxTreeDepth); });
 
     return population;
 }
