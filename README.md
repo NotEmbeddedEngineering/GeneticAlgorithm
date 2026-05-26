@@ -1,1 +1,3 @@
 # GeneticAlgorithm
+
+Algorytm Genetyczny
