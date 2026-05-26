@@ -1,7 +1,7 @@
 #include "PopulationGenerator.h"
 
 PopulationGenerator::PopulationGenerator(const TaskGraph& graph, const int numberOfChilds)
-    : rng(std::random_device{}()), graph(graph), numberOfChilds(numberOfChilds) {}
+    : graph(graph), numberOfChilds(numberOfChilds), rng(std::random_device{}()) {}
 
 FunctionType PopulationGenerator::randomFunctionType() {
     std::uniform_int_distribution<int> dist(1, static_cast<int>(FunctionType::COUNT));

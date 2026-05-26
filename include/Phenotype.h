@@ -3,6 +3,12 @@
 #include "TaskGraph.h"
 
 class Phenotype {
+public:
+    explicit Phenotype(const TaskGraph& graph);
+
+    // wylicza fitnessScore i wpisuje go
+    void evaluate();
+
 private:
     // TODO CHANGE TO SHARED POINTER
     TaskGraph* graph;
@@ -23,10 +29,4 @@ private:
     bool isValid();
 
     double fitnessScore = 0.0;
-
-public:
-    explicit Phenotype(const TaskGraph& graph);
-
-    // wylicza fitnessScore i wpisuje go
-    void evaluate();
 };

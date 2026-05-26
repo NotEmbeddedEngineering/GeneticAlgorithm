@@ -7,23 +7,6 @@
 #include <random>
 
 class PopulationGenerator {
-private:
-    const TaskGraph& graph;
-    const int numberOfChilds;
-    std::mt19937_64 rng;
-
-    // wybiera random funkcje
-    FunctionType randomFunctionType();
-
-    // tworzy pojedynczego Node'a
-    std::unique_ptr<Node> createRandomNode();
-
-    // Polaczyc te dwie funkcje w jedno!!! TODO
-    // DFS do budownia galezi
-    void expandTree(Node* currentNode, int maxDepth);
-    // generator jednego drzewa
-    DecisionTree buildSingleTree(int maxDepth);
-
 public:
     explicit PopulationGenerator(const TaskGraph& graph, int numberOfChilds);
 
@@ -49,4 +32,21 @@ public:
     // TODO
     // shared pointer dodac
     Phenotype run(const Phenotype& initialSolution);
+
+private:
+    const TaskGraph& graph;
+    const int numberOfChilds;
+    std::mt19937_64 rng;
+
+    // wybiera random funkcje
+    FunctionType randomFunctionType();
+
+    // tworzy pojedynczego Node'a
+    std::unique_ptr<Node> createRandomNode();
+
+    // Polaczyc te dwie funkcje w jedno!!! TODO
+    // DFS do budownia galezi
+    void expandTree(Node* currentNode, int maxDepth);
+    // generator jednego drzewa
+    DecisionTree buildSingleTree(int maxDepth);
 };

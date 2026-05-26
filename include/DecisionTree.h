@@ -6,9 +6,6 @@
 #include <memory>
 
 class DecisionTree {
-private:
-    std::unique_ptr<Node> root;
-
 public:
     DecisionTree() = delete;
 
@@ -21,4 +18,7 @@ public:
 
     // przetwarza i wykonuje funkcje wygenerowane wcześniej drzewo w PopulationGenerator
     [[nodiscard]] Phenotype decode(const Phenotype& baseSolution) const;
+
+private:
+    std::unique_ptr<Node> root;
 };
