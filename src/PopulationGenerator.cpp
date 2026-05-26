@@ -56,65 +56,65 @@ DecisionTree PopulationGenerator::buildSingleTree(const int maxDepth) {
     return DecisionTree(std::move(root));
 }
 
-std::vector<DecisionTree> PopulationGenerator::generatePopulationZero(const int populationSize) {
+std::vector<DecisionTree> PopulationGenerator::generatePopulationZero() {
     std::vector<DecisionTree> population;
-    population.reserve(populationSize);
+    population.reserve(params.populationSize);
 
-    std::generate_n(std::back_inserter(population), populationSize,
+    std::generate_n(std::back_inserter(population), params.populationSize,
                     [this]() { return buildSingleTree(params.maxTreeDepth); });
 
     return population;
 }
 
-std::vector<DecisionTree> PopulationGenerator::generateNextPopulation(
-    const std::vector<EvaluatedTree>& prevPopulation, int populationSize) {
+std::vector<DecisionTree>
+PopulationGenerator::generateNextPopulation(const std::vector<EvaluatedTree>& prevPopulation) {
 
-    std::vector<DecisionTree> nextPopulation;
-    nextPopulation.reserve(populationSize);
-
-
-    std::vector<EvaluatedTree> clones = selectParents(prevPopulation, params.numClones);
     // 1. Klonowanie
-    for (int i = 0; i < params.numClones && nextPopulation.size() < populationSize; ++i) {
-        nextPopulation.push_back(clones[i].tree);
-    }
-
+    std::vector<DecisionTree> best_specimen = selectParents(prevPopulation, params.numClones);
+    best_specimen.reserve(params.populationSize);
 
     // 2. Krzyżowanie
-    std::vector<EvaluatedTree> parents = selectParents(prevPopulation, params.numCrossovers);
+    std::vector<DecisionTree> parents = selectParents(prevPopulation, params.numCrossovers);
     std::ranges::shuffle(parents, rng);
 
-    for (int i = 0; i < params.numCrossovers; i += 2) {
-        DecisionTree& mother = parents[i].tree;
-        DecisionTree& father = parents[i + 1].tree;
+    for (int i = 0; i < params.numCrossovers - 1; i += 2) {
+        DecisionTree& mother = parents[i];
+        DecisionTree& father = parents[i + 1];
         crossover(mother, father);
 
-        nextPopulation.push_back(mother);
-        nextPopulation.push_back(father);
+        best_specimen.push_back(mother);
+        best_specimen.push_back(father);
     }
 
     // 3. Mutacja
-    std::vector<EvaluatedTree> mutants = selectParents(prevPopulation, params.numMutations);
+    std::vector<DecisionTree> mutants = selectParents(prevPopulation, params.numMutations);
 
-    // TODO
+    for (auto& mutant : mutants) {
+        mutate(mutant);
+        best_specimen.push_back(mutant);
+    }
+
+    return best_specimen;
 }
 
-
-std::vector<EvaluatedTree> PopulationGenerator::evaluatePopulation(const std::vector<DecisionTree>& population, const Phenotype& baseSolition) {
+std::vector<EvaluatedTree>
+PopulationGenerator::evaluatePopulation(const std::vector<DecisionTree>& population,
+                                        const Phenotype& baseSolition) {
     std::vector<EvaluatedTree> evaluatedPopulation;
     evaluatedPopulation.reserve(population.size());
 
-    for (const auto& tree : population) {
+    for (int i = 0; i < population.size(); ++i) {
+        auto tree = population[i];
         Phenotype candidate = tree.decode(baseSolition);
         candidate.evaluate();
-        evaluatedPopulation.push_back({tree, candidate});
+        evaluatedPopulation.emplace_back(tree, candidate);
     }
 
     return evaluatedPopulation;
 }
 
 Phenotype PopulationGenerator::run(const Phenotype& initialSolution) {
-    auto population = generatePopulationZero(static_cast<int>(params.populationSize));
+    auto population = generatePopulationZero();
     int noImprovementCounter = 0;
     double bestFitness = -1e9;
 

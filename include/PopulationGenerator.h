@@ -14,17 +14,18 @@ public:
                                  const EvolutionParams& params);
 
     // generator Generacji 0
-    std::vector<DecisionTree> generatePopulationZero(int populationSize);
+    std::vector<DecisionTree> generatePopulationZero();
 
     // generator kolejnej Generacji X
     std::vector<DecisionTree>
-    generateNextPopulation(const std::vector<EvaluatedTree>& prevPopulation, int populationSize);
+    generateNextPopulation(const std::vector<EvaluatedTree>& prevPopulation);
 
-    std::vector<EvaluatedTree> evaluatePopulation(const std::vector<DecisionTree>& population, const Phenotype& baseSolution);
+    std::vector<EvaluatedTree> evaluatePopulation(const std::vector<DecisionTree>& population,
+                                                  const Phenotype& baseSolution);
 
     // Tutaj funkcje do wybierania rodzicow - metoda RANKINGOWA
-    std::vector<EvaluatedTree> selectParents(const std::vector<EvaluatedTree>& population,
-                                            int numParents);
+    std::vector<DecisionTree> selectParents(const std::vector<EvaluatedTree>& population,
+                                            int populationSize);
 
     // bierzemy Drzewo A i Drzewo B, losujemy po jednym wezle i odcinami i zamieniamy miejscami(krzyżowanie)
     void crossover(DecisionTree& parentA, DecisionTree& parentB);
