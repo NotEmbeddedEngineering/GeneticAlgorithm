@@ -1,29 +1,31 @@
 #pragma once
 
-#include "FunctionType.h"
 #include "Phenotype.h"
 #include <memory>
-#include <optional>
 #include <vector>
 
-// Struktura Wierzcholka
+/**
+ * Empty node
+ */
 struct Node {
-    FunctionType type;
-    // Parametry węzła, na którym robimy modyfikacje
-    std::optional<int> targetTaskId;
-    std::optional<int> targetProcessorId;
-    std::optional<int> targetChannelId;
+    Node() = default;
+    Node(const Node& from);
+    Node& operator=(const Node& from);
+    Node(Node&& from) = default;
+    Node& operator=(Node&& from) = default;
+    virtual ~Node() = default;
+
+    virtual void process(const Phenotype& currentState);
 
     std::vector<std::unique_ptr<Node>> children;
+};
 
-    explicit Node(const FunctionType t, const std::optional<int> taskId = std::nullopt,
-                  const std::optional<int> processorId = std::nullopt,
-                  const std::optional<int> channelId = std::nullopt)
-        : type(t), targetTaskId(taskId), targetProcessorId(processorId),
-          targetChannelId(channelId) {}
+struct ChangeProcessorRandomNode : Node {
+    ChangeProcessorRandomNode();
+    ChangeProcessorRandomNode(const ChangeProcessorRandomNode& from);
 
-    // Klonowanie
-    [[nodiscard]] std::unique_ptr<Node> clone() const;
+    void process(const Phenotype& currentState) override;
 
-    void process(Phenotype& currentState);
+    int taskId = -1;
+    int newProcId = -1;
 };
