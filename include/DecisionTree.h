@@ -20,3 +20,8 @@ public:
 private:
     std::unique_ptr<Node> root;
 };
+
+struct EvaluatedTree {
+    DecisionTree tree;
+    Phenotype phenotype;
+};

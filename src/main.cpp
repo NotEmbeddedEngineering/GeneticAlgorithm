@@ -1,14 +1,24 @@
-#include "DecisionTree.h"
-#include "Node.h"
+#include "EvolutionParams.h"
+#include "FunctionType.h"
+
+#include <iostream>
 
 int main() {
-    auto root = std::make_unique<Node>();
-    root->children.emplace_back(std::make_unique<ChangeProcessorRandomNode>());
+    EvolutionParams params{};
+    params.alpha = 5.0;
+    params.beta = 0.1;  // % mutacji
+    params.gamma = 0.6; // % krzyzowania
+    params.delta = 0.3; // % klony
+    params.mutationRate = 0.05;
 
-    DecisionTree tree(std::move(root));
-    TaskGraph graph;
-    Phenotype baseSolution(graph);
-    Phenotype solution = tree.decode(baseSolution);
+    params.maxGenerations = 100;
+    params.epsilon = 20;
+    params.maxTreeDepth = 10;
+
+    int numTasks = 12;
+    int numProcessors = 4;
+
+    params.setup(numTasks, numProcessors);
 
     return 0;
 }

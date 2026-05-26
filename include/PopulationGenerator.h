@@ -14,14 +14,16 @@ public:
                                  const EvolutionParams& params);
 
     // generator Generacji 0
-    std::vector<DecisionTree> generatePopulationZero(int populationSize, Phenotype& baseSolution);
+    std::vector<DecisionTree> generatePopulationZero(int populationSize);
 
     // generator kolejnej Generacji X
     std::vector<DecisionTree>
-    generateNextPopulation(const std::vector<DecisionTree>& prevPopulation, int populationSize);
+    generateNextPopulation(const std::vector<EvaluatedTree>& prevPopulation, int populationSize);
+
+    std::vector<EvaluatedTree> evaluatePopulation(const std::vector<DecisionTree>& population, const Phenotype& baseSolution);
 
     // Tutaj funkcje do wybierania rodzicow - metoda RANKINGOWA
-    std::vector<DecisionTree> selectParents(const std::vector<DecisionTree>& population,
+    std::vector<EvaluatedTree> selectParents(const std::vector<EvaluatedTree>& population,
                                             int numParents);
 
     // bierzemy Drzewo A i Drzewo B, losujemy po jednym wezle i odcinami i zamieniamy miejscami(krzyżowanie)
@@ -38,7 +40,7 @@ public:
 
 private:
     const TaskGraph& graph;
-    const EvolutionParams params{};
+    const EvolutionParams params;
     const int numberOfChilds;
     std::mt19937_64 rng;
 
