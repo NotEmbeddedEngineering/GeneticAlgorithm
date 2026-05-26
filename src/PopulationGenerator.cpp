@@ -22,7 +22,7 @@ std::unique_ptr<Node> PopulationGenerator::createRandomNode() {
     int channelId = channelDist(rng);
 
     // Regenerate if invalid
-    while (graph.times[processorId][taskId] == -1) {
+    while (graph.getTime(processorId,taskId)== -1) {
         taskId = taskDist(rng);
         processorId = procDist(rng);
     }

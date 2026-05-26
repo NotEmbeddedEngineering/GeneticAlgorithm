@@ -40,4 +40,17 @@ struct TaskGraph {
 
     std::vector<std::vector<int>> times;
     std::vector<std::vector<int>> costs;
+
+    int getTime(size_t procID, size_t taskID)const{
+        return times[procID][taskID];
+    }
+    int getCost(size_t procID, size_t taskID)const{
+        return costs[procID][taskID];
+    }
+    int& getTime(size_t procID, size_t taskID){
+        return times[procID][taskID];
+    }
+    int& getCost(size_t procID, size_t taskID){
+        return costs[procID][taskID];
+    }
 };
