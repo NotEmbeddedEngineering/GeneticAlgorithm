@@ -9,6 +9,9 @@ public:
     // wylicza fitnessScore i wpisuje go
     void evaluate();
 
+    const std::vector<int>& getTaskToProcessor() const { return taskToProcessor; }
+    const std::vector<int>& getProcessorToChannel() const { return processorToChannel; }
+
 private:
     // TODO CHANGE TO SHARED POINTER
     TaskGraph* graph;

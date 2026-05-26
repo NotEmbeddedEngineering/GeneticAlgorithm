@@ -54,8 +54,7 @@ DecisionTree PopulationGenerator::buildSingleTree(int maxDepth) {
     return DecisionTree(std::move(root));
 }
 
-std::vector<DecisionTree> PopulationGenerator::generatePopulationZero(int populationSize,
-                                                                      Phenotype& baseSolution) {
+std::vector<DecisionTree> PopulationGenerator::generatePopulationZero(int populationSize) {
     std::vector<DecisionTree> population;
     population.reserve(populationSize);
 
@@ -63,4 +62,38 @@ std::vector<DecisionTree> PopulationGenerator::generatePopulationZero(int popula
                     [this]() { return buildSingleTree(params.maxTreeDepth); });
 
     return population;
+}
+
+std::vector<DecisionTree> PopulationGenerator::generateNextPopulation(
+    const std::vector<DecisionTree>& prevPopulation, int populationSize) {
+
+    std::vector<DecisionTree> population;
+    population.reserve(populationSize);
+
+
+}
+
+
+std::vector<EvaluatedTree> PopulationGenerator::evaluatePopulation(const std::vector<DecisionTree>& population, const Phenotype& baseSolition) {
+    std::vector<EvaluatedTree> evaluatedPopulation;
+    evaluatedPopulation.reserve(population.size());
+
+    for (const auto& tree : population) {
+        Phenotype candidate = tree.decode(baseSolition);
+        candidate.evaluate();
+        evaluatedPopulation.push_back({tree, candidate});
+    }
+
+    return evaluatedPopulation;
+}
+
+Phenotype PopulationGenerator::run(const Phenotype& initialSolution) {
+    auto population = generatePopulationZero(static_cast<int>(params.populationSize));
+    int noImprovementCounter = 0;
+    double bestFitness = -1e9;
+
+    for (int gen = 0; gen < params.maxGenerations; ++gen) {
+        auto evaluated = evaluatePopulation(population, initialSolution);
+        double currentBest = std::max_element(std::ranges(evaluated.phenotype))
+    }
 }

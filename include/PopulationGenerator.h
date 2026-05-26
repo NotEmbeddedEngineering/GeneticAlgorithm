@@ -13,11 +13,13 @@ public:
                                  EvolutionParams& params);
 
     // generator Generacji 0
-    std::vector<DecisionTree> generatePopulationZero(int populationSize, Phenotype& baseSolution);
+    std::vector<DecisionTree> generatePopulationZero(int populationSize);
 
     // generator kolejnej Generacji X
     std::vector<DecisionTree>
     generateNextPopulation(const std::vector<DecisionTree>& prevPopulation, int populationSize);
+
+    std::vector<EvaluatedTree> evaluatePopulation(const std::vector<DecisionTree>& population, const Phenotype& baseSolution);
 
     // Tutaj funkcje do wybierania rodzicow - metoda RANKINGOWA
     std::vector<DecisionTree> selectParents(const std::vector<DecisionTree>& population,
