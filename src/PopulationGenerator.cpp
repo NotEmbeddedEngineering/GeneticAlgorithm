@@ -3,7 +3,7 @@
 #include <algorithm>
 
 PopulationGenerator::PopulationGenerator(const TaskGraph& graph, const int numberOfChilds,
-                                         EvolutionParams& params)
+                                         const EvolutionParams& params)
     : graph(graph), params(params), numberOfChilds(numberOfChilds), rng(std::random_device{}()) {}
 
 FunctionType PopulationGenerator::randomFunctionType() {
@@ -13,7 +13,9 @@ FunctionType PopulationGenerator::randomFunctionType() {
 }
 
 std::unique_ptr<Node> PopulationGenerator::createRandomNode() {
-    FunctionType type = randomFunctionType();
+    // Do przerobienia
+
+    /*FunctionType type = randomFunctionType();
 
     std::uniform_int_distribution<int> taskDist(0, graph.numTasks - 1);
     std::uniform_int_distribution<int> procDist(0, graph.numProcessors - 1);
@@ -31,10 +33,10 @@ std::unique_ptr<Node> PopulationGenerator::createRandomNode() {
         // TODO
     }
 
-    return std::make_unique<Node>(type, taskId, processorId, channelId);
+    return std::make_unique<Node>(type, taskId, processorId, channelId);*/
 }
 
-void PopulationGenerator::expandTree(Node* currentNode, int remainingDepth) {
+void PopulationGenerator::expandTree(Node* currentNode, const int remainingDepth) {
     if (remainingDepth <= 0)
         return;
 
@@ -47,14 +49,14 @@ void PopulationGenerator::expandTree(Node* currentNode, int remainingDepth) {
     }
 }
 
-DecisionTree PopulationGenerator::buildSingleTree(int maxDepth) {
-    auto root = std::make_unique<Node>(FunctionType::NO_OPERATION);
+DecisionTree PopulationGenerator::buildSingleTree(const int maxDepth) {
+    auto root = std::make_unique<Node>();
     expandTree(root.get(), maxDepth);
 
     return DecisionTree(std::move(root));
 }
 
-std::vector<DecisionTree> PopulationGenerator::generatePopulationZero(int populationSize) {
+std::vector<DecisionTree> PopulationGenerator::generatePopulationZero(const int populationSize) {
     std::vector<DecisionTree> population;
     population.reserve(populationSize);
 

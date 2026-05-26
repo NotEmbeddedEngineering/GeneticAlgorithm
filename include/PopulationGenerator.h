@@ -1,4 +1,5 @@
 #pragma once
+
 #include "DecisionTree.h"
 #include "EvolutionParams.h"
 #include "FunctionType.h"
@@ -9,8 +10,8 @@
 
 class PopulationGenerator {
 public:
-    explicit PopulationGenerator(const TaskGraph& graph, int numberOfChilds,
-                                 EvolutionParams& params);
+    explicit PopulationGenerator(const TaskGraph& graph, const int numberOfChilds,
+                                 const EvolutionParams& params);
 
     // generator Generacji 0
     std::vector<DecisionTree> generatePopulationZero(int populationSize);
@@ -44,13 +45,14 @@ private:
     std::mt19937_64 rng;
 
     // wybiera random funkcje
+    // trzeba będzie walnąc switcha i zwracać odpowiedni typ Node, np. CHANGE_PROCESSOR_RANDOM -> ChangeProcessorRandomNode
     FunctionType randomFunctionType();
 
     // tworzy pojedynczego Node'a
     std::unique_ptr<Node> createRandomNode();
 
     // DFS do budownia galezi
-    void expandTree(Node* currentNode, int maxDepth);
+    void expandTree(Node* currentNode, int remainingDepth);
 
     // generator jednego drzewa
     DecisionTree buildSingleTree(int maxDepth);

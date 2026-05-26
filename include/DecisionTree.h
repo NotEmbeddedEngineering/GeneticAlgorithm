@@ -3,15 +3,13 @@
 #include "Node.h"
 #include "Phenotype.h"
 
-#include <memory>
-
 class DecisionTree {
 public:
     DecisionTree() = delete;
 
-    explicit DecisionTree(std::unique_ptr<Node> rootNode);
-    DecisionTree(const DecisionTree& other);
-    DecisionTree& operator=(const DecisionTree& other);
+    explicit DecisionTree(std::unique_ptr<Node>&& rootNode);
+    DecisionTree(const DecisionTree& from);
+    DecisionTree& operator=(const DecisionTree& from);
 
     DecisionTree(DecisionTree&&) noexcept = default;
     DecisionTree& operator=(DecisionTree&&) noexcept = default;

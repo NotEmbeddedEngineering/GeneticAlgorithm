@@ -1,23 +1,43 @@
 #include "Node.h"
 
-// --- NODE ---
-std::unique_ptr<Node> Node::clone() const {
-    auto clonedNode = std::make_unique<Node>(type, targetTaskId, targetProcessorId);
+#include <iostream>
 
-    for (const auto& child : children) {
-        clonedNode->children.push_back(child->clone());
+// --- NODE ---
+Node::Node(const Node& from) {
+    for (const auto& child : from.children) {
+        this->children.emplace_back(std::make_unique<Node>(*child));
+    }
+}
+Node& Node::operator=(const Node& from) {
+    if (&from == this) {
+        return *this;
     }
 
-    return clonedNode;
+    this->children.clear();
+    for (const auto& child : from.children) {
+        this->children.emplace_back(std::make_unique<Node>(*child));
+    }
+    return *this;
 }
 
-void Node::process(Phenotype& currentState) {
-    switch (this->type) {
-        case FunctionType::CHANGE_PROCESSOR_RANDOM:
-            // logika
-            break;
-        case FunctionType::CHANGE_CHANNEL_RANDOM:
-            // ...
-            break;
+void Node::process(const Phenotype& currentState) {
+    for (const auto& child : children) {
+        child->process(currentState);
     }
+}
+
+// --- ChangeProcessorRandomNode ---
+ChangeProcessorRandomNode::ChangeProcessorRandomNode() : Node() {}
+ChangeProcessorRandomNode::ChangeProcessorRandomNode(const ChangeProcessorRandomNode& from)
+    : Node(from) {
+    taskId = from.taskId;
+    newProcId = from.newProcId;
+}
+
+void ChangeProcessorRandomNode::process(const Phenotype& currentState) {
+    newProcId = 67;
+    taskId = 69;
+    std::cout << "ChangeProcessorRandomNode " << newProcId << " " << taskId << "\n";
+
+    Node::process(currentState);
 }

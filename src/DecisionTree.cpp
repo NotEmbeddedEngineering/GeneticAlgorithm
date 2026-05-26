@@ -1,22 +1,21 @@
 #include "DecisionTree.h"
 
-DecisionTree::DecisionTree(std::unique_ptr<Node> rootNode) : root(std::move(rootNode)) {}
+DecisionTree::DecisionTree(std::unique_ptr<Node>&& rootNode) : root(std::move(rootNode)) {}
 
-// Copy constructor
-DecisionTree::DecisionTree(const DecisionTree& other) {
-    if (other.root) {
-        root = other.root->clone();
-    }
+DecisionTree::DecisionTree(const DecisionTree& from) {
+    this->root = std::make_unique<Node>(*from.root);
 }
 
-DecisionTree& DecisionTree::operator=(const DecisionTree& other) {
-    if (this != &other && other.root) {
-        root = other.root->clone();
+DecisionTree& DecisionTree::operator=(const DecisionTree& from) {
+    if (this != &from) {
+        this->root = std::make_unique<Node>(*from.root);
     }
 
     return *this;
 }
 
 Phenotype DecisionTree::decode(const Phenotype& baseSolution) const {
-    // TODO
+    Phenotype solution = baseSolution;
+    root->process(solution);
+    return solution;
 }
