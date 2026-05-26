@@ -45,6 +45,10 @@ struct TaskGraph {
     std::vector<std::vector<int>> times;
     std::vector<std::vector<int>> costs;
 
+    // Zwraca czy dany procesor może wykonać dane zadanie
+    bool canExecute(size_t procID, size_t taskID) const{
+        return getTime(procID,taskID) != -1 && getCost(procID,taskID) != -1; 
+    }
     int getTime(size_t procID, size_t taskID)const{
         if(procID >= numProcessors || taskID >= numTasks) throw std::logic_error(std::format("Resource out of range! Requested time for task {}/{} and proc {}/{}",taskID,numTasks-1,procID,numProcessors-1));
         return times[procID][taskID];
