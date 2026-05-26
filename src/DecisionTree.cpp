@@ -1,4 +1,4 @@
-#include "../include/DecisionTree.h"
+#include "DecisionTree.h"
 
 DecisionTree::DecisionTree(std::unique_ptr<Node> rootNode) : root(std::move(rootNode)) {}
 
@@ -18,6 +18,5 @@ DecisionTree& DecisionTree::operator=(const DecisionTree& other) {
 }
 
 Phenotype DecisionTree::decode(const Phenotype& baseSolution) const {
-    return {};
+    // TODO
 }
-

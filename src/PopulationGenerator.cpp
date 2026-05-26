@@ -1,8 +1,7 @@
-#include "../include/PopulationGenerator.h"
+#include "PopulationGenerator.h"
 
-PopulationGenerator::PopulationGenerator(const TaskGraph &graph, const int numberOfChilds)
+PopulationGenerator::PopulationGenerator(const TaskGraph& graph, const int numberOfChilds)
     : rng(std::random_device{}()), graph(graph), numberOfChilds(numberOfChilds) {}
-
 
 FunctionType PopulationGenerator::randomFunctionType() {
     std::uniform_int_distribution<int> dist(1, static_cast<int>(FunctionType::COUNT));
@@ -22,18 +21,17 @@ std::unique_ptr<Node> PopulationGenerator::createRandomNode() {
     int channelId = channelDist(rng);
 
     if (graph.times[processorId][taskId] == -1) {
-
     }
 
     if (graph.channels[channelId].connected_processor[processorId] == 0) {
-
     }
 
     return std::make_unique<Node>(type, taskId, processorId, channelId);
 }
 
-void PopulationGenerator::expandTree(Node *currentNode, int remainingDepth) {
-    if (remainingDepth <= 0) return;
+void PopulationGenerator::expandTree(Node* currentNode, int remainingDepth) {
+    if (remainingDepth <= 0)
+        return;
 
     std::uniform_int_distribution<int> numChilds(0, numberOfChilds);
 

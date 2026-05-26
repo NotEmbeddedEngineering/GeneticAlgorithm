@@ -1,4 +1,4 @@
-#include "../include/Node.h"
+#include "Node.h"
 
 // --- NODE ---
 std::unique_ptr<Node> Node::clone() const {
@@ -11,7 +11,7 @@ std::unique_ptr<Node> Node::clone() const {
     return clonedNode;
 }
 
-void Node::process(Phenotype& currentState) const {
+void Node::process(Phenotype& currentState) {
     switch (this->type) {
         case FunctionType::CHANGE_PROCESSOR_RANDOM:
             // logika
@@ -19,6 +19,5 @@ void Node::process(Phenotype& currentState) const {
         case FunctionType::CHANGE_CHANNEL_RANDOM:
             // ...
             break;
-
     }
 }

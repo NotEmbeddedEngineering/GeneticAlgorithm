@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Phenotype.h"
 #include "Node.h"
+#include "Phenotype.h"
 
 #include <memory>
 

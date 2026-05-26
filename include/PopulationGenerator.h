@@ -1,9 +1,9 @@
 #pragma once
-#include "Phenotype.h"
 #include "DecisionTree.h"
-#include "TaskGraph.h"
 #include "FunctionType.h"
 #include "Node.h"
+#include "Phenotype.h"
+#include "TaskGraph.h"
 #include <random>
 
 class PopulationGenerator {
@@ -31,11 +31,12 @@ public:
     std::vector<DecisionTree> generatePopulationZero(int populationSize);
 
     // generator kolejnej Generacji X
-    std::vector<DecisionTree> generateNextPopulation(const std::vector<DecisionTree>& prevPopulation,
-        int populationSize);
+    std::vector<DecisionTree>
+    generateNextPopulation(const std::vector<DecisionTree>& prevPopulation, int populationSize);
 
     // Tutaj funkcje do wybierania rodzicow - metoda RANKINGOWA
-    std::vector<DecisionTree> selectParents(const std::vector<DecisionTree>& population, int numParents);
+    std::vector<DecisionTree> selectParents(const std::vector<DecisionTree>& population,
+                                            int numParents);
 
     // bierzemy Drzewo A i Drzewo B, losujemy po jednym wezle i odcinami i zamieniamy miejscami(krzyżowanie)
     void crossover(DecisionTree& parentA, DecisionTree& parentB);

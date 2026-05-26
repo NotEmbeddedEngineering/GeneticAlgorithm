@@ -11,7 +11,7 @@ private:
     // taskToProcessor[taskId] = processorId
     std::vector<int> taskToProcessor;
 
-     // processorToChannel[processorId] = channelId
+    // processorToChannel[processorId] = channelId
     // -1 oznacza brak przypisanej szyny
     std::vector<int> processorToChannel;
 

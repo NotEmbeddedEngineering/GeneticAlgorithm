@@ -1,13 +1,8 @@
-#include <iostream>
-#include "include/PopulationGenerator.h"
-#include "include/DecisionTree.h"
-#include "TaskGraph.h"
 #include "FunctionType.h"
-#include "include/Node.h"
-#include "EvolutionParams.h"
+
+#include <iostream>
 
 int main() {
-    // std::cout << static_cast<int>(FunctionType::COUNT);
-
+    std::cout << static_cast<int>(FunctionType::COUNT);
     return 0;
 }
