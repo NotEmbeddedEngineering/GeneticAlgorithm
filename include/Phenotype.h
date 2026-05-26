@@ -9,13 +9,9 @@ public:
     // wylicza fitnessScore i wpisuje go
     void evaluate();
 
-    const std::vector<int>& getTaskToProcessor() const { return taskToProcessor; }
-    const std::vector<int>& getProcessorToChannel() const { return processorToChannel; }
-    double getFitnessScore() const { return fitnessScore; }
-
-private:
-    // TODO CHANGE TO SHARED POINTER
-    TaskGraph* graph;
+    double getFitnessScore() const {
+        return fitnessScore;
+    }
 
     // --- Aktualny Stan (DNA) ---
     // taskToProcessor[taskId] = processorId
@@ -25,6 +21,10 @@ private:
     // -1 oznacza brak przypisanej szyny
     // TODO rozróżnienie w przypadku dwóch procesorów PP
     std::vector<int> processorToChannel;
+
+private:
+    // TODO CHANGE TO SHARED POINTER
+    TaskGraph* graph;
 
     // --- Wyniki ---
     int time = -1;

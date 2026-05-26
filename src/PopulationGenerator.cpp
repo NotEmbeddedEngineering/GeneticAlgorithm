@@ -7,16 +7,12 @@ PopulationGenerator::PopulationGenerator(const TaskGraph& graph, const int numbe
     : graph(graph), params(params), numberOfChilds(numberOfChilds), rng(std::random_device{}()) {}
 
 FunctionType PopulationGenerator::randomFunctionType() {
-    std::uniform_int_distribution<int> dist(1, static_cast<int>(FunctionType::COUNT));
+    std::uniform_int_distribution<int> dist(1, static_cast<int>(FunctionType::COUNT) - 1);
 
     return static_cast<FunctionType>(dist(rng));
 }
 
 std::unique_ptr<Node> PopulationGenerator::createRandomNode() {
-    // Do przerobienia
-
-    /*FunctionType type = randomFunctionType();
-
     std::uniform_int_distribution<int> taskDist(0, graph.numTasks - 1);
     std::uniform_int_distribution<int> procDist(0, graph.numProcessors - 1);
     std::uniform_int_distribution<int> channelDist(0, graph.numChannels - 1);
@@ -25,15 +21,41 @@ std::unique_ptr<Node> PopulationGenerator::createRandomNode() {
     int processorId = procDist(rng);
     int channelId = channelDist(rng);
 
-    if (graph.times[processorId][taskId] == -1) {
-        // TODO
+    // Regenerate if invalid
+    while (graph.times[processorId][taskId] == -1) {
+        taskId = taskDist(rng);
+        processorId = procDist(rng);
+    }
+    while (graph.channels[channelId].connected_processor[processorId] == 0) {
+        channelId = channelDist(rng);
     }
 
-    if (graph.channels[channelId].connected_processor[processorId] == 0) {
-        // TODO
+    std::unique_ptr<Node> node;
+
+    switch (randomFunctionType()) {
+        case FunctionType::CHANGE_PROCESSOR_RANDOM: {
+            node = std::make_unique<ChangeProcessorRandomNode>(taskId, processorId);
+            break;
+        }
+        case FunctionType::MOVE_TASK_TO_FASTEST_PROCESSOR:
+            break;
+        case FunctionType::MOVE_TASK_TO_CHEAPEST_PROCESSOR:
+            break;
+        case FunctionType::MOVE_TASK_TO_LEAST_BUSY_PROCESSOR:
+            break;
+        case FunctionType::CHANGE_CHANNEL_RANDOM:
+            break;
+        case FunctionType::MOVE_PROCESSOR_TO_BEST_BANDWIDTH_CHANNEL:
+            break;
+        case FunctionType::MOVE_PROCESSOR_TO_CHEAPEST_CHANNEL:
+            break;
+
+        case FunctionType::NO_OPERATION:
+        case FunctionType::COUNT:
+            throw std::runtime_error("PopulationGenerator: Wylosowano niedozwolony typ operacji");
     }
 
-    return std::make_unique<Node>(type, taskId, processorId, channelId);*/
+    return node;
 }
 
 void PopulationGenerator::expandTree(Node* currentNode, const int remainingDepth) {

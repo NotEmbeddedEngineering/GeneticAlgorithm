@@ -5,7 +5,7 @@
 // --- NODE ---
 Node::Node(const Node& from) {
     for (const auto& child : from.children) {
-        this->children.emplace_back(std::make_unique<Node>(*child));
+        children.emplace_back(child->clone());
     }
 }
 Node& Node::operator=(const Node& from) {
@@ -13,31 +13,48 @@ Node& Node::operator=(const Node& from) {
         return *this;
     }
 
-    this->children.clear();
+    children.clear();
     for (const auto& child : from.children) {
-        this->children.emplace_back(std::make_unique<Node>(*child));
+        children.emplace_back(child->clone());
     }
     return *this;
 }
 
-void Node::process(const Phenotype& currentState) {
+std::unique_ptr<Node> Node::clone() const {
+    return std::make_unique<Node>(*this);
+}
+
+void Node::process(Phenotype& currentState) {
     for (const auto& child : children) {
         child->process(currentState);
     }
 }
 
 // --- ChangeProcessorRandomNode ---
-ChangeProcessorRandomNode::ChangeProcessorRandomNode() : Node() {}
+ChangeProcessorRandomNode::ChangeProcessorRandomNode(const int taskId, const int newProcId)
+    : Node(), taskId(taskId), newProcId(newProcId) {}
+
 ChangeProcessorRandomNode::ChangeProcessorRandomNode(const ChangeProcessorRandomNode& from)
-    : Node(from) {
+    : Node(from), taskId(from.taskId), newProcId(from.newProcId) {}
+
+ChangeProcessorRandomNode&
+ChangeProcessorRandomNode::operator=(const ChangeProcessorRandomNode& from) {
+    if (this == &from) {
+        return *this;
+    }
+
+    Node::operator=(from);
     taskId = from.taskId;
     newProcId = from.newProcId;
+
+    return *this;
 }
 
-void ChangeProcessorRandomNode::process(const Phenotype& currentState) {
-    newProcId = 67;
-    taskId = 69;
-    std::cout << "ChangeProcessorRandomNode " << newProcId << " " << taskId << "\n";
+std::unique_ptr<Node> ChangeProcessorRandomNode::clone() const {
+    return std::make_unique<ChangeProcessorRandomNode>(*this);
+}
 
+void ChangeProcessorRandomNode::process(Phenotype& currentState) {
+    currentState.taskToProcessor[taskId] = newProcId;
     Node::process(currentState);
 }
