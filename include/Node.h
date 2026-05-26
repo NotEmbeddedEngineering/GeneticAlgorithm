@@ -7,7 +7,8 @@
 /**
  * Empty node
  */
-struct Node {
+class Node {
+public:
     Node() = default;
     Node(const Node& from);
     Node& operator=(const Node& from);
@@ -20,7 +21,8 @@ struct Node {
     std::vector<std::unique_ptr<Node>> children;
 };
 
-struct ChangeProcessorRandomNode : Node {
+class ChangeProcessorRandomNode : public Node {
+public:
     ChangeProcessorRandomNode();
     ChangeProcessorRandomNode(const ChangeProcessorRandomNode& from);
 
