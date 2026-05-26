@@ -21,9 +21,11 @@ std::unique_ptr<Node> PopulationGenerator::createRandomNode() {
     int channelId = channelDist(rng);
 
     if (graph.times[processorId][taskId] == -1) {
+        // TODO
     }
 
     if (graph.channels[channelId].connected_processor[processorId] == 0) {
+        // TODO
     }
 
     return std::make_unique<Node>(type, taskId, processorId, channelId);
@@ -40,4 +42,11 @@ void PopulationGenerator::expandTree(Node* currentNode, int remainingDepth) {
         expandTree(child.get(), remainingDepth - 1);
         currentNode->children.push_back(std::move(child));
     }
+}
+
+DecisionTree PopulationGenerator::buildSingleTree(int maxDepth) {
+    auto root = std::make_unique<Node>(FunctionType::NO_OPERATION);
+    expandTree(root.get(), maxDepth);
+
+    return DecisionTree(std::move(root));
 }
