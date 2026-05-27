@@ -1,6 +1,8 @@
 #include "PopulationGenerator.h"
 
 #include <algorithm>
+#include <iostream>
+#include <ostream>
 
 PopulationGenerator::PopulationGenerator(const TaskGraph& graph, const int numberOfChilds,
                                          const EvolutionParams& params)
@@ -132,8 +134,7 @@ PopulationGenerator::evaluatePopulation(const std::vector<DecisionTree>& populat
     std::vector<EvaluatedTree> evaluatedPopulation;
     evaluatedPopulation.reserve(population.size());
 
-    for (int i = 0; i < population.size(); ++i) {
-        auto tree = population[i];
+    for (const auto& tree : population) {
         Phenotype candidate = tree.decode(baseSolition);
         candidate.evaluate();
         evaluatedPopulation.emplace_back(tree, candidate);
@@ -145,10 +146,33 @@ PopulationGenerator::evaluatePopulation(const std::vector<DecisionTree>& populat
 Phenotype PopulationGenerator::run(const Phenotype& initialSolution) {
     auto population = generatePopulationZero();
     int noImprovementCounter = 0;
+
+    Phenotype bestPhenotype = initialSolution;
     double bestFitness = -1e9;
 
     for (int gen = 0; gen < params.maxGenerations; ++gen) {
         auto evaluated = evaluatePopulation(population, initialSolution);
-        double currentBest; // TODO
+
+        const auto currentBestIterator = std::ranges::max_element(
+            evaluated, {}, [](const auto& x) { return x.phenotype.getFitnessScore(); });
+
+        if (const double currentBest = currentBestIterator->phenotype.getFitnessScore();
+            currentBest > bestFitness) {
+            bestFitness = currentBest;
+            bestPhenotype = currentBestIterator->phenotype;
+            noImprovementCounter = 0;
+        } else {
+            ++noImprovementCounter;
+        }
+
+        if (noImprovementCounter >= params.epsilon) {
+            std::cout << "Brak poprawy przez " << noImprovementCounter << " generacji. Koniec."
+                      << std::endl;
+            break;
+        }
+
+        population = generateNextPopulation(evaluated);
     }
+
+    return bestPhenotype;
 }
