@@ -91,29 +91,36 @@ std::vector<DecisionTree> PopulationGenerator::generatePopulationZero() {
 std::vector<DecisionTree>
 PopulationGenerator::generateNextPopulation(const std::vector<EvaluatedTree>& prevPopulation) {
 
-    // 1. Klonowanie
-    std::vector<DecisionTree> best_specimen = selectParents(prevPopulation, params.numClones);
+    std::vector<DecisionTree> best_specimen;
     best_specimen.reserve(params.populationSize);
 
-    // 2. Krzyżowanie
-    std::vector<DecisionTree> parents = selectParents(prevPopulation, params.numCrossovers);
-    std::ranges::shuffle(parents, rng);
+    const int numOfParents =
+        std::max({params.numCrossovers, params.numMutations, params.numClones});
+    std::vector<DecisionTree> parents = selectParents(prevPopulation, numOfParents);
+
+    // 1. Klonowanie
+    for (int i = 0; i < params.numClones; ++i) {
+        best_specimen.push_back(parents[i]);
+    }
+
+    // 2. Mutacja
+    for (int i = 0; i < params.numMutations; ++i) {
+        DecisionTree mutant = parents[i];
+        mutate(mutant);
+        best_specimen.push_back(mutant);
+    }
+
+    // 3. Krzyżowanie
+    std::vector parentsToCross(parents.begin(), parents.begin() + params.numCrossovers);
+    std::ranges::shuffle(parentsToCross, rng);
 
     for (int i = 0; i < params.numCrossovers - 1; i += 2) {
-        DecisionTree& mother = parents[i];
-        DecisionTree& father = parents[i + 1];
+        DecisionTree& mother = parentsToCross[i];
+        DecisionTree& father = parentsToCross[i + 1];
         crossover(mother, father);
 
         best_specimen.push_back(mother);
         best_specimen.push_back(father);
-    }
-
-    // 3. Mutacja
-    std::vector<DecisionTree> mutants = selectParents(prevPopulation, params.numMutations);
-
-    for (auto& mutant : mutants) {
-        mutate(mutant);
-        best_specimen.push_back(mutant);
     }
 
     return best_specimen;
