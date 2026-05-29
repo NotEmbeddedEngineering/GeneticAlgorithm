@@ -7,8 +7,6 @@ struct EvolutionParams {
     double gamma; // Prawdopodobieństwo krzyżowania
     double delta; // klonowanie
 
-    double mutationRate;   // %
-
     int epsilon;        // Warunek stopu (ile pokoleń bez poprawy znosimy)
     int maxGenerations; // Twardy limit pokoleń
     int maxTreeDepth;   // Głębokość drzewa
@@ -17,6 +15,7 @@ struct EvolutionParams {
     int numClones;      // f: Liczba osobników przechodzących bez zmian (delta * Pi)
     int numMutations;   // omega: Liczba osobników losowo modyfikowanych (beta * Pi)
     int numCrossovers;  // ksi: Liczba osobników do krzyżowania (gamma * Pi)
+    int numberOfChilds; // maksymalna liczba dzieci w drzewie
 
     void setup(int taskCount, int processorCount) {
         populationSize = static_cast<int>(std::round(alpha * taskCount * processorCount));

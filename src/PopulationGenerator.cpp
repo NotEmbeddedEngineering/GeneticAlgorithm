@@ -4,9 +4,9 @@
 #include <iostream>
 #include <ostream>
 
-PopulationGenerator::PopulationGenerator(const TaskGraph& graph, const int numberOfChilds,
+PopulationGenerator::PopulationGenerator(const TaskGraph& graph,
                                          const EvolutionParams& params)
-    : graph(graph), params(params), numberOfChilds(numberOfChilds), rng(std::random_device{}()) {}
+    : graph(graph), params(params), rng(std::random_device{}()) {}
 
 FunctionType PopulationGenerator::randomFunctionType() {
     std::uniform_int_distribution<int> dist(1, static_cast<int>(FunctionType::COUNT) - 1);
@@ -64,9 +64,13 @@ void PopulationGenerator::expandTree(Node* currentNode, const int remainingDepth
     if (remainingDepth <= 0)
         return;
 
-    std::uniform_int_distribution<int> numChilds(0, numberOfChilds);
+    const int depth = params.maxTreeDepth - remainingDepth;
+    const double p_d = 1.0 / (static_cast<double>(depth) + 1.0);
 
-    for (int i = 0; i < numChilds(rng); ++i) {
+    std::binomial_distribution<int> numChilds(params.numberOfChilds, p_d);
+
+    int range = numChilds(rng);
+    for (int i = 0; i < range; ++i) {
         auto child = createRandomNode();
         expandTree(child.get(), remainingDepth - 1);
         currentNode->children.push_back(std::move(child));
@@ -96,29 +100,29 @@ PopulationGenerator::generateNextPopulation(const std::vector<EvaluatedTree>& pr
     std::vector<DecisionTree> best_specimen;
     best_specimen.reserve(params.populationSize);
 
-    const int numOfParents =
-        std::max({params.numCrossovers, params.numMutations, params.numClones});
-    std::vector<DecisionTree> parents = selectParents(prevPopulation, numOfParents);
+    const std::vector<DecisionTree> clones = selection(prevPopulation, params.numClones);
 
     // 1. Klonowanie
     for (int i = 0; i < params.numClones; ++i) {
-        best_specimen.push_back(parents[i]);
+        best_specimen.push_back(clones[i]);
     }
+
+    const std::vector<DecisionTree> mutants = selection(prevPopulation, params.numMutations);
 
     // 2. Mutacja
     for (int i = 0; i < params.numMutations; ++i) {
-        DecisionTree mutant = parents[i];
+        DecisionTree mutant = mutants[i];
         mutate(mutant);
         best_specimen.push_back(mutant);
     }
 
     // 3. Krzyżowanie
-    std::vector parentsToCross(parents.begin(), parents.begin() + params.numCrossovers);
-    std::ranges::shuffle(parentsToCross, rng);
+    std::vector parents = selection(prevPopulation, params.numCrossovers);
+    std::ranges::shuffle(parents, rng);
 
     for (int i = 0; i < params.numCrossovers - 1; i += 2) {
-        DecisionTree& mother = parentsToCross[i];
-        DecisionTree& father = parentsToCross[i + 1];
+        DecisionTree& mother = parents[i];
+        DecisionTree& father = parents[i + 1];
         crossover(mother, father);
 
         best_specimen.push_back(mother);
