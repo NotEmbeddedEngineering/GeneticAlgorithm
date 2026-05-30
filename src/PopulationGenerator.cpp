@@ -28,7 +28,7 @@ std::unique_ptr<Node> PopulationGenerator::createRandomNode() {
         taskId = taskDist(rng);
         processorId = procDist(rng);
     }
-    while (graph->channels[channelId].connected_processor[processorId] == 0) {
+    while (!graph->isConnected(channelId, processorId)) {
         channelId = channelDist(rng);
     }
 
