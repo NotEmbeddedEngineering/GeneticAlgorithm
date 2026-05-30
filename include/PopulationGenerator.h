@@ -10,8 +10,7 @@
 
 class PopulationGenerator {
 public:
-    explicit PopulationGenerator(const TaskGraph& graph, const int numberOfChilds,
-                                 const EvolutionParams& params);
+    explicit PopulationGenerator(const TaskGraph& graph, const EvolutionParams& params);
 
     // generator Generacji 0
     std::vector<DecisionTree> generatePopulationZero();
@@ -20,12 +19,13 @@ public:
     std::vector<DecisionTree>
     generateNextPopulation(const std::vector<EvaluatedTree>& prevPopulation);
 
+    // Ocenia populacje
     std::vector<EvaluatedTree> evaluatePopulation(const std::vector<DecisionTree>& population,
                                                   const Phenotype& baseSolution);
 
-    // Tutaj funkcje do wybierania rodzicow - metoda RANKINGOWA
-    std::vector<DecisionTree> selectParents(const std::vector<EvaluatedTree>& population,
-                                            int populationSize);
+    // Funkcja do wybierania osobników - metoda RANKINGOWA
+    std::vector<DecisionTree> selection(const std::vector<EvaluatedTree>& population,
+                                        int populationSize);
 
     // bierzemy Drzewo A i Drzewo B, losujemy po jednym wezle i odcinami i zamieniamy miejscami(krzyżowanie)
     void crossover(DecisionTree& parentA, DecisionTree& parentB);
@@ -42,7 +42,6 @@ public:
 private:
     const TaskGraph& graph;
     const EvolutionParams params;
-    const int numberOfChilds;
     std::mt19937_64 rng;
 
     // wybiera random funkcje

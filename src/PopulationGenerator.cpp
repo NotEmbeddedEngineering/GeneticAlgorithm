@@ -1,10 +1,12 @@
 #include "PopulationGenerator.h"
 
 #include <algorithm>
+#include <iostream>
+#include <ostream>
 
-PopulationGenerator::PopulationGenerator(const TaskGraph& graph, const int numberOfChilds,
+PopulationGenerator::PopulationGenerator(const TaskGraph& graph,
                                          const EvolutionParams& params)
-    : graph(graph), params(params), numberOfChilds(numberOfChilds), rng(std::random_device{}()) {}
+    : graph(graph), params(params), rng(std::random_device{}()) {}
 
 FunctionType PopulationGenerator::randomFunctionType() {
     std::uniform_int_distribution<int> dist(1, static_cast<int>(FunctionType::COUNT) - 1);
@@ -62,9 +64,13 @@ void PopulationGenerator::expandTree(Node* currentNode, const int remainingDepth
     if (remainingDepth <= 0)
         return;
 
-    std::uniform_int_distribution<int> numChilds(0, numberOfChilds);
+    const int depth = params.maxTreeDepth - remainingDepth;
+    const double p_d = 1.0 / (static_cast<double>(depth) + 1.0);
 
-    for (int i = 0; i < numChilds(rng); ++i) {
+    std::binomial_distribution<int> numChilds(params.numberOfChilds, p_d);
+
+    int range = numChilds(rng);
+    for (int i = 0; i < range; ++i) {
         auto child = createRandomNode();
         expandTree(child.get(), remainingDepth - 1);
         currentNode->children.push_back(std::move(child));
@@ -91,12 +97,27 @@ std::vector<DecisionTree> PopulationGenerator::generatePopulationZero() {
 std::vector<DecisionTree>
 PopulationGenerator::generateNextPopulation(const std::vector<EvaluatedTree>& prevPopulation) {
 
-    // 1. Klonowanie
-    std::vector<DecisionTree> best_specimen = selectParents(prevPopulation, params.numClones);
+    std::vector<DecisionTree> best_specimen;
     best_specimen.reserve(params.populationSize);
 
-    // 2. Krzyżowanie
-    std::vector<DecisionTree> parents = selectParents(prevPopulation, params.numCrossovers);
+    const std::vector<DecisionTree> clones = selection(prevPopulation, params.numClones);
+
+    // 1. Klonowanie
+    for (int i = 0; i < params.numClones; ++i) {
+        best_specimen.push_back(clones[i]);
+    }
+
+    const std::vector<DecisionTree> mutants = selection(prevPopulation, params.numMutations);
+
+    // 2. Mutacja
+    for (int i = 0; i < params.numMutations; ++i) {
+        DecisionTree mutant = mutants[i];
+        mutate(mutant);
+        best_specimen.push_back(mutant);
+    }
+
+    // 3. Krzyżowanie
+    std::vector parents = selection(prevPopulation, params.numCrossovers);
     std::ranges::shuffle(parents, rng);
 
     for (int i = 0; i < params.numCrossovers - 1; i += 2) {
@@ -108,14 +129,6 @@ PopulationGenerator::generateNextPopulation(const std::vector<EvaluatedTree>& pr
         best_specimen.push_back(father);
     }
 
-    // 3. Mutacja
-    std::vector<DecisionTree> mutants = selectParents(prevPopulation, params.numMutations);
-
-    for (auto& mutant : mutants) {
-        mutate(mutant);
-        best_specimen.push_back(mutant);
-    }
-
     return best_specimen;
 }
 
@@ -125,8 +138,7 @@ PopulationGenerator::evaluatePopulation(const std::vector<DecisionTree>& populat
     std::vector<EvaluatedTree> evaluatedPopulation;
     evaluatedPopulation.reserve(population.size());
 
-    for (int i = 0; i < population.size(); ++i) {
-        auto tree = population[i];
+    for (const auto& tree : population) {
         Phenotype candidate = tree.decode(baseSolition);
         candidate.evaluate();
         evaluatedPopulation.emplace_back(tree, candidate);
@@ -138,10 +150,33 @@ PopulationGenerator::evaluatePopulation(const std::vector<DecisionTree>& populat
 Phenotype PopulationGenerator::run(const Phenotype& initialSolution) {
     auto population = generatePopulationZero();
     int noImprovementCounter = 0;
+
+    Phenotype bestPhenotype = initialSolution;
     double bestFitness = -1e9;
 
     for (int gen = 0; gen < params.maxGenerations; ++gen) {
         auto evaluated = evaluatePopulation(population, initialSolution);
-        double currentBest; // TODO
+
+        const auto currentBestIterator = std::ranges::max_element(
+            evaluated, {}, [](const auto& x) { return x.phenotype.getFitnessScore(); });
+
+        if (const double currentBest = currentBestIterator->phenotype.getFitnessScore();
+            currentBest > bestFitness) {
+            bestFitness = currentBest;
+            bestPhenotype = currentBestIterator->phenotype;
+            noImprovementCounter = 0;
+        } else {
+            ++noImprovementCounter;
+        }
+
+        if (noImprovementCounter >= params.epsilon) {
+            std::cout << "Brak poprawy przez " << noImprovementCounter << " generacji. Koniec."
+                      << std::endl;
+            break;
+        }
+
+        population = generateNextPopulation(evaluated);
     }
+
+    return bestPhenotype;
 }
