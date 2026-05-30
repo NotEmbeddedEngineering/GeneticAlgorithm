@@ -15,9 +15,9 @@ FunctionType PopulationGenerator::randomFunctionType() {
 }
 
 std::unique_ptr<Node> PopulationGenerator::createRandomNode() {
-    std::uniform_int_distribution<int> taskDist(0, graph->numTasks - 1);
-    std::uniform_int_distribution<int> procDist(0, graph->numProcessors - 1);
-    std::uniform_int_distribution<int> channelDist(0, graph->numChannels - 1);
+    std::uniform_int_distribution<int> taskDist(0, graph->getTaskCount() - 1);
+    std::uniform_int_distribution<int> procDist(0, graph->getProcessorsCount() - 1);
+    std::uniform_int_distribution<int> channelDist(0, graph->getChannelsCount() - 1);
 
     int taskId = taskDist(rng);
     int processorId = procDist(rng);

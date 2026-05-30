@@ -4,15 +4,19 @@
 #include <string>
 #include <vector>
 
-struct CommunicationEdge {
-    int sourceTaskId;
-    int targetTaskId;
-    int bandwidth;
+struct Edge {
+    int32_t targetTaskId;
+    int32_t bandwidth;
+};
+
+enum class PeType {
+    PP,
+    HC,
 };
 
 struct Processor {
-    int cost;
-    int type; // HC - 0, PP -1
+    int32_t cost;
+    PeType type;
     constexpr bool isHC() const;
     constexpr bool isPP() const;
 };
@@ -21,35 +25,33 @@ struct Channel {
     int cost;
     int bandwidth;
     std::string name;
-    std::vector<int> connected_processor;
+    std::vector<int32_t> connected_processor;
 };
 
-struct TaskGraph {
+class TaskGraph {
     size_t numTasks;
     size_t numProcessors;
     size_t numChannels;
     size_t hardTime;
 
-    // Wszystkie krawędzie komunikacyjne.
-    // edgeId jest indeksem w tym wektorze.
-    std::vector<CommunicationEdge> edges;
-
-    // Lista sąsiedztwa: adjList[taskId] zawiera identyfikatory krawędzi edgeId
-    // wychodzących z danego zadania.
-    std::vector<std::vector<int>> adjList;
+    // Lista sąsiedztwa: adjList[taskId] zawiera krawędzie wychodzących z danego zadania.
+    std::vector<std::vector<Edge>> adjList;
 
     std::vector<Processor> processors;
     std::vector<Channel> channels;
 
     // [procId][taskId]
-    std::vector<std::vector<int>> times;
+    std::vector<std::vector<int32_t>> times;
     // [procId][taskId]
-    std::vector<std::vector<int>> costs;
+    std::vector<std::vector<int32_t>> costs;
 
+public:
     // Zwraca czy dany procesor może wykonać dane zadanie
     bool canExecute(size_t procId, size_t taskId) const;
-    int getTime(size_t procId, size_t taskId) const;
-    int getCost(size_t procId, size_t taskId) const;
-    int getTime(size_t procId, size_t taskId);
-    int getCost(size_t procId, size_t taskId);
+    bool isConnected(size_t chanelId, size_t procId) const;
+    int32_t getTime(size_t procId, size_t taskId) const;
+    int32_t getCost(size_t procId, size_t taskId) const;
+    size_t getTaskCount() const;
+    size_t getProcessorsCount() const;
+    size_t getChannelsCount() const;
 };

@@ -58,8 +58,8 @@ void MoveTaskToFastestProcessorNode::process(Phenotype& currentState) {
     std::vector<size_t> fastestProcIds;
     int fastestProcTime = std::numeric_limits<int>::max();
 
-    for (size_t procId = 0; procId < graph->processors.size(); procId++) {
-        int time = graph->times[procId][taskId];
+    for (size_t procId = 0; procId < graph->getProcessorsCount(); procId++) {
+        int time = graph->getTime(procId, taskId);
 
         if (time < fastestProcTime) {
             fastestProcTime = time;

@@ -1,0 +1,7 @@
+-Wall
+-std=c++23
+-x
+c++-header
+-pedantic
+-Wextra
+-I./include/
