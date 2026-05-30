@@ -2,30 +2,31 @@
 
 #include "TaskGraph.h"
 
+#include <memory>
+
 class Phenotype {
 public:
-    explicit Phenotype(const TaskGraph& graph);
+    explicit Phenotype(const std::shared_ptr<TaskGraph>& graph);
 
     // wylicza fitnessScore i wpisuje go
     void evaluate();
 
-    double getFitnessScore() const {
+    [[nodiscard]] double getFitnessScore() const {
         return fitnessScore;
     }
 
     // --- Aktualny Stan (DNA) ---
     // taskToProcessor[taskId] = processorId
-    std::vector<int> taskToProcessor;
+    std::vector<size_t> taskToProcessor;
 
     // processorToChannel[processorId] = channelId
     // -1 oznacza brak przypisanej szyny
     // TODO rozróżnienie w przypadku dwóch procesorów PP
-    std::vector<int> processorToChannel;
+    std::vector<size_t> processorToChannel;
+
+    std::shared_ptr<TaskGraph> graph;
 
 private:
-    // TODO CHANGE TO SHARED POINTER
-    TaskGraph* graph;
-
     // --- Wyniki ---
     int time = -1;
     int cost = -1;

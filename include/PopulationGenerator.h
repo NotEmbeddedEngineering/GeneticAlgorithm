@@ -10,7 +10,8 @@
 
 class PopulationGenerator {
 public:
-    explicit PopulationGenerator(const TaskGraph& graph, const EvolutionParams& params);
+    explicit PopulationGenerator(const std::shared_ptr<TaskGraph>& graph,
+                                 const EvolutionParams& params);
 
     // generator Generacji 0
     std::vector<DecisionTree> generatePopulationZero();
@@ -35,12 +36,10 @@ public:
     void mutate(DecisionTree& tree);
 
     // odpalenie symulacji
-    // TODO
-    // shared pointer dodac
     Phenotype run(const Phenotype& initialSolution);
 
 private:
-    const TaskGraph& graph;
+    std::shared_ptr<TaskGraph> graph;
     const EvolutionParams params;
     std::mt19937_64 rng;
 
