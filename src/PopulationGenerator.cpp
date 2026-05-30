@@ -39,9 +39,10 @@ std::unique_ptr<Node> PopulationGenerator::createRandomNode() {
             node = std::make_unique<ChangeProcessorRandomNode>(taskId, processorId);
             break;
         }
-        case FunctionType::MOVE_TASK_TO_FASTEST_PROCESSOR:
+        case FunctionType::MOVE_TASK_TO_FASTEST_PROCESSOR: {
             node = std::make_unique<MoveTaskToFastestProcessorNode>(taskId, rng);
             break;
+        }
         case FunctionType::MOVE_TASK_TO_CHEAPEST_PROCESSOR:
             break;
         case FunctionType::MOVE_TASK_TO_LEAST_BUSY_PROCESSOR:

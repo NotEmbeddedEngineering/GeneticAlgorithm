@@ -2,6 +2,7 @@
 
 #include "Phenotype.h"
 #include <memory>
+#include <random>
 #include <vector>
 
 /**
@@ -32,4 +33,16 @@ public:
 private:
     int taskId;
     int newProcId;
+};
+
+class MoveTaskToFastestProcessorNode : public Node {
+public:
+    explicit MoveTaskToFastestProcessorNode(int taskId, std::mt19937_64& rng);
+
+    [[nodiscard]] std::unique_ptr<Node> clone() const override;
+    void process(Phenotype& currentState) override;
+
+private:
+    int taskId;
+    std::mt19937_64& rng;
 };
