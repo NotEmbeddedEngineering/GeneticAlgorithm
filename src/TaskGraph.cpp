@@ -25,31 +25,31 @@ bool TaskGraph::isConnected(size_t channelId, size_t procId) const {
 }
 
 int32_t TaskGraph::getTime(size_t procId, size_t taskId) const {
-    if (procId >= numProcessors || taskId >= numTasks) {
+    if (procId >= this->getProcessorsCount() || taskId >= this->getTaskCount()) {
         throw std::logic_error(
             std::format("Resource out of range! Requested time for task {}/{} and proc {}/{}",
-                        taskId, numTasks - 1, procId, numProcessors - 1));
+                        taskId, this->getTaskCount() - 1, procId, this->getProcessorsCount() - 1));
     }
     return times[procId][taskId];
 }
 
 int32_t TaskGraph::getCost(size_t procId, size_t taskId) const {
-    if (procId >= numProcessors || taskId >= numTasks) {
+    if (procId >= this->getProcessorsCount() || taskId >= this->getTaskCount()) {
         throw std::logic_error(
             std::format("Resource out of range! Requested cost for task {}/{} and proc {}/{}",
-                        taskId, numTasks - 1, procId, numProcessors - 1));
+                        taskId, this->getTaskCount() - 1, procId, this->getProcessorsCount() - 1));
     }
     return costs[procId][taskId];
 }
 
 size_t TaskGraph::getTaskCount() const {
-    return this->numTasks;
+    return this->adjList.size();
 }
 size_t TaskGraph::getProcessorsCount() const {
-    return this->numProcessors;
+    return this->processors.size();
 }
 size_t TaskGraph::getChannelsCount() const {
-    return this->numChannels;
+    return this->channels.size();
 }
 
 TaskGraph::TaskGraph(std::string filePath) {

@@ -33,12 +33,6 @@ struct Channel {
 
 class TaskGraph {
 private:
-    // FIX: redundant information
-    size_t numTasks;
-    size_t numProcessors;
-    size_t numChannels;
-    size_t hardTime;
-
     // Lista sąsiedztwa: adjList[taskId] zawiera krawędzie wychodzących z danego zadania.
     std::vector<std::vector<Edge>> adjList;
 
