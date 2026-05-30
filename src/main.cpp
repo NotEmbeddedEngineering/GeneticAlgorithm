@@ -1,32 +1,18 @@
 #include "EvolutionParams.h"
-#include "FunctionType.h"
+#include "Phenotype.h"
+#include "PopulationGenerator.h"
 
-#include <iostream>
+#include <filesystem>
 
-// KONFIGURACJA
-EvolutionParams getDefaultParams(){
-    return EvolutionParams{
-        .alpha = 5.0,
-        .beta = 0.1,  // % mutacji
-        .gamma = 0.6, // % krzyzowania 
-        .delta = 0.3, // % klonowania
-        .mutationRate = 0.05,
-
-        .epsilon = 20,
-        .maxGenerations = 100,
-        .maxTreeDepth = 10
-    };
-}
-
-
-// WYKONANIE
 int main() {
-    auto params = getDefaultParams();
+    constexpr int numTasks = 12;
+    constexpr int numProcessors = 4;
+    const EvolutionParams params(numTasks, numProcessors, 5.0, 0.1, 0.6, 0.3, 20, 100, 10);
 
-    const int numTasks = 12;
-    const int numProcessors = 4;
-
-    params.setup(numTasks, numProcessors);
+    const auto graph = std::make_shared<TaskGraph>(); // TODO: czytaj graf z pliku
+    PopulationGenerator populationGenerator(graph, params);
+    const Phenotype initialSolution(graph); // TODO: wygeneruj pierwszy, najgorszy fenotyp
+    populationGenerator.run(initialSolution);
 
     return 0;
 }

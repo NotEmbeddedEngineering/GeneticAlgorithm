@@ -1,3 +1,3 @@
 #include "Phenotype.h"
 
-Phenotype::Phenotype(const TaskGraph& graph) {}
+Phenotype::Phenotype(const std::shared_ptr<TaskGraph>& graph) : graph(graph) {}

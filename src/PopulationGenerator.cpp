@@ -4,7 +4,7 @@
 #include <iostream>
 #include <ostream>
 
-PopulationGenerator::PopulationGenerator(const TaskGraph& graph,
+PopulationGenerator::PopulationGenerator(const std::shared_ptr<TaskGraph>& graph,
                                          const EvolutionParams& params)
     : graph(graph), params(params), rng(std::random_device{}()) {}
 
@@ -15,20 +15,20 @@ FunctionType PopulationGenerator::randomFunctionType() {
 }
 
 std::unique_ptr<Node> PopulationGenerator::createRandomNode() {
-    std::uniform_int_distribution<int> taskDist(0, graph.numTasks - 1);
-    std::uniform_int_distribution<int> procDist(0, graph.numProcessors - 1);
-    std::uniform_int_distribution<int> channelDist(0, graph.numChannels - 1);
+    std::uniform_int_distribution<int> taskDist(0, graph->numTasks - 1);
+    std::uniform_int_distribution<int> procDist(0, graph->numProcessors - 1);
+    std::uniform_int_distribution<int> channelDist(0, graph->numChannels - 1);
 
     int taskId = taskDist(rng);
     int processorId = procDist(rng);
     int channelId = channelDist(rng);
 
     // Regenerate if invalid
-    while (graph.getTime(processorId,taskId)== -1) {
+    while (graph->getTime(processorId, taskId) == -1) {
         taskId = taskDist(rng);
         processorId = procDist(rng);
     }
-    while (graph.channels[channelId].connected_processor[processorId] == 0) {
+    while (graph->channels[channelId].connected_processor[processorId] == 0) {
         channelId = channelDist(rng);
     }
 
@@ -39,8 +39,10 @@ std::unique_ptr<Node> PopulationGenerator::createRandomNode() {
             node = std::make_unique<ChangeProcessorRandomNode>(taskId, processorId);
             break;
         }
-        case FunctionType::MOVE_TASK_TO_FASTEST_PROCESSOR:
+        case FunctionType::MOVE_TASK_TO_FASTEST_PROCESSOR: {
+            node = std::make_unique<MoveTaskToFastestProcessorNode>(taskId, rng);
             break;
+        }
         case FunctionType::MOVE_TASK_TO_CHEAPEST_PROCESSOR:
             break;
         case FunctionType::MOVE_TASK_TO_LEAST_BUSY_PROCESSOR:
