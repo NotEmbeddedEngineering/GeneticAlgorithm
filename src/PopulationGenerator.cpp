@@ -224,15 +224,13 @@ PopulationGenerator::selection(const std::vector<EvaluatedTree>& population, int
         cdf[i] = cdf[i - 1] + weights[i];
     cdf.back() = 1.0;
 
-    std::random_device rd;
-    std::mt19937_64 re(rd());
     std::uniform_real_distribution<double> dist(0.0, 1.0);
 
     std::vector<DecisionTree> result;
     result.reserve(n);
     for (size_t _{}; _ < n; ++_) {
-        double rVal = dist(re);
-        size_t id = std::distance(cdf.begin(), std::upper_bound(cdf.begin(), cdf.end(), rVal));
+        double rVal = dist(rng);
+        size_t id = std::distance(cdf.begin(), std::ranges::upper_bound(cdf, rVal));
         if (id >= N)
             id = N - 1;
         result.push_back(pop[id].tree);
