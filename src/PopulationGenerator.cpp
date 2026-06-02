@@ -1,10 +1,10 @@
 #include "PopulationGenerator.h"
 
 #include <algorithm>
+#include <functional>
 #include <iostream>
 #include <ostream>
 #include <queue>
-#include <functional>
 #include <valarray>
 
 PopulationGenerator::PopulationGenerator(const std::shared_ptr<TaskGraph>& graph,
@@ -74,7 +74,7 @@ void PopulationGenerator::expandTree(Node* currentNode, const int remainingDepth
 
     std::binomial_distribution<int> numChilds(params.numberOfChilds, p_d);
 
-    int range = numChilds(rng);
+    const int range = numChilds(rng);
     for (int i = 0; i < range; ++i) {
         auto child = createRandomNode();
         expandTree(child.get(), remainingDepth - 1);
@@ -186,44 +186,55 @@ Phenotype PopulationGenerator::run(const Phenotype& initialSolution) {
     return bestPhenotype;
 }
 
-std::vector<DecisionTree> PopulationGenerator::selection(const std::vector<EvaluatedTree>& population, int populationSize) {
-    
+std::vector<DecisionTree>
+PopulationGenerator::selection(const std::vector<EvaluatedTree>& population, int populationSize) {
+
     const size_t N = population.size();
     const size_t n = populationSize;
-    if(N==0 || n==0) return {};
-    
-    double selectionPressure=1.75;
+    if (N == 0 || n == 0)
+        return {};
+
+    const double selectionPressure = 1.75;
 
     std::vector<EvaluatedTree> pop = population;
-    std::sort(pop.begin(), pop.end(), [](EvaluatedTree& a,  EvaluatedTree& b){
+    std::ranges::sort(pop, [](const EvaluatedTree& a, const EvaluatedTree& b) {
         return a.phenotype.getFitnessScore() > b.phenotype.getFitnessScore(); // best first
     });
 
-    std::vector<double> weights(N); double sum{};
-    if(N==1) weights[0] = 1.0;
-    else for (size_t rank{}; rank < N; ++rank){
-        weights[rank] = selectionPressure - 2 * (selectionPressure-1) * ((double) rank)/((double)N -1);
-        if (weights[rank]<0) weights[rank] = 0; 
-        sum+=weights[rank];
-    }
-    if(sum!=0) for(auto& weight: weights) weight/=sum;
+    std::vector<double> weights(N);
+    double sum{};
+    if (N == 1)
+        weights[0] = 1.0;
+    else
+        for (size_t rank{}; rank < N; ++rank) {
+            weights[rank] = selectionPressure - 2 * (selectionPressure - 1) *
+                                                    static_cast<double>(rank) /
+                                                    (static_cast<double>(N) - 1);
+            if (weights[rank] < 0)
+                weights[rank] = 0;
+            sum += weights[rank];
+        }
+    if (sum != 0)
+        for (auto& weight : weights)
+            weight /= sum;
 
     std::vector<double> cdf(N);
     cdf[0] = weights[0];
-    for(size_t i{1}; i<N; ++i) cdf[i] = cdf[i-1]+weights[i];
+    for (size_t i{1}; i < N; ++i)
+        cdf[i] = cdf[i - 1] + weights[i];
     cdf.back() = 1.0;
 
     std::random_device rd;
-    std::mt19937_64 re(rd());   
+    std::mt19937_64 re(rd());
     std::uniform_real_distribution<double> dist(0.0, 1.0);
 
-
-    std::vector<DecisionTree> result;   
+    std::vector<DecisionTree> result;
     result.reserve(n);
-    for(size_t _{}; _<n; ++_){
+    for (size_t _{}; _ < n; ++_) {
         double rVal = dist(re);
-        size_t id = std::distance(cdf.begin(), std::upper_bound(cdf.begin(), cdf.end(),rVal));
-        if(id >= N) id = N-1;
+        size_t id = std::distance(cdf.begin(), std::upper_bound(cdf.begin(), cdf.end(), rVal));
+        if (id >= N)
+            id = N - 1;
         result.push_back(pop[id].tree);
     }
     return result;
