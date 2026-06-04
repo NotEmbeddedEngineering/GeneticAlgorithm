@@ -10,7 +10,7 @@
 
 class PopulationGenerator {
 public:
-    explicit PopulationGenerator(const std::shared_ptr<TaskGraph>& graph,
+    explicit PopulationGenerator(const std::shared_ptr<TaskGraph> graph,
                                  const EvolutionParams& params);
 
     // generator Generacji 0

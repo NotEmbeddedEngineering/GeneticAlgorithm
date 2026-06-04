@@ -9,10 +9,10 @@
 
 int main() {
 
-    std::unique_ptr<TaskGraph> graph{};
+    std::shared_ptr<TaskGraph> graph{};
     try {
         std::string graphPath = "./testGraph.txt";
-        const auto graph = std::make_shared<TaskGraph>(graphPath);
+        graph = std::make_shared<TaskGraph>(graphPath);
     } catch (std::exception& e) {
         std::cerr << e.what() << std::endl;
         exit(1);

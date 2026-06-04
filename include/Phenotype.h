@@ -6,7 +6,7 @@
 
 class Phenotype {
 public:
-    explicit Phenotype(const std::shared_ptr<TaskGraph>& graph);
+    explicit Phenotype(const std::shared_ptr<TaskGraph> graph);
 
     // wylicza fitnessScore i wpisuje go
     void evaluate();
@@ -28,8 +28,8 @@ public:
 
 private:
     // --- Wyniki ---
-    int time = -1;
-    int cost = -1;
+    int32_t time = -1;
+    int32_t cost = -1;
 
     // Czy przekracza hard time constrains
     bool isValid();

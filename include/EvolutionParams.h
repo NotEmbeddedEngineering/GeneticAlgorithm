@@ -3,7 +3,7 @@
 struct EvolutionParams {
     EvolutionParams(int taskCount, int processorCount, double alpha = 5.0, double beta = 0.1,
                     double gamma = 0.6, double delta = 0.3, int epsilon = 20,
-                    int maxGenerations = 100, int maxTreeDepth = 4, int numberOfChilds = 3);
+                    int maxGenerations = 100, int maxTreeDepth = 4, int numberOfChildren = 3);
 
     double alpha = 5.0;       // Mnożnik populacji
     double beta = 0.1;        // Prawdopodobieństwo mutacji
@@ -12,7 +12,7 @@ struct EvolutionParams {
     int epsilon = 20;         // Warunek stopu (ile pokoleń bez poprawy znosimy)
     int maxGenerations = 100; // Twardy limit pokoleń
     int maxTreeDepth = 4;     // Głębokość drzewa
-    int numberOfChilds = 3;   // maksymalna liczba dzieci w drzewie
+    int numberOfChildren = 3; // maksymalna liczba dzieci w drzewie
 
     // Automatycznie obliczone w konstruktorze
     int populationSize; // Pi: Całkowita liczebność pokolenia (alpha * num_tasks * num_resources)

@@ -4,7 +4,7 @@
 
 EvolutionParams::EvolutionParams(int taskCount, int processorCount, double alpha, double beta,
                                  double gamma, double delta, int epsilon, int maxGenerations,
-                                 int maxTreeDepth, int numberOfChilds) {
+                                 int maxTreeDepth, int numberOfChildren) {
 
     this->alpha = alpha;
     this->beta = beta;
@@ -13,7 +13,7 @@ EvolutionParams::EvolutionParams(int taskCount, int processorCount, double alpha
     this->epsilon = epsilon;
     this->maxGenerations = maxGenerations;
     this->maxTreeDepth = maxTreeDepth;
-    this->numberOfChilds = numberOfChilds;
+    this->numberOfChildren = numberOfChildren;
 
     populationSize = static_cast<int>(std::round(alpha * taskCount * processorCount));
     numClones = static_cast<int>(std::round(delta * populationSize));
