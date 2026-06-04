@@ -7,7 +7,7 @@
 #include <queue>
 #include <valarray>
 
-PopulationGenerator::PopulationGenerator(const std::shared_ptr<TaskGraph>& graph,
+PopulationGenerator::PopulationGenerator(const std::shared_ptr<TaskGraph> graph,
                                          const EvolutionParams& params)
     : graph(graph), params(params), rng(std::random_device{}()) {}
 
@@ -72,7 +72,7 @@ void PopulationGenerator::expandTree(Node* currentNode, const int remainingDepth
     const int depth = params.maxTreeDepth - remainingDepth;
     const double p_d = 1.0 / (static_cast<double>(depth) + 1.0);
 
-    std::binomial_distribution<int> numChilds(params.numberOfChilds, p_d);
+    std::binomial_distribution<int> numChilds(params.numberOfChildren, p_d);
 
     const int range = numChilds(rng);
     for (int i = 0; i < range; ++i) {
@@ -237,3 +237,6 @@ PopulationGenerator::selection(const std::vector<EvaluatedTree>& population, int
     }
     return result;
 }
+
+void PopulationGenerator::crossover(DecisionTree& parentA, DecisionTree& parentB) {}
+void PopulationGenerator::mutate(DecisionTree& tree) {}
