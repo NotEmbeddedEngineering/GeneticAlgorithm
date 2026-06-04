@@ -39,7 +39,8 @@ std::unique_ptr<Node> ChangeProcessorRandomNode::clone() const {
 }
 
 void ChangeProcessorRandomNode::process(Phenotype& currentState) {
-    currentState.taskToProcessor[taskId] = newProcId;
+    // TODO fix to use phenotype internal proc
+    // currentState.taskToProcessor[taskId] = newProcId;
     Node::process(currentState);
 }
 
@@ -52,27 +53,29 @@ std::unique_ptr<Node> MoveTaskToFastestProcessorNode::clone() const {
     return std::make_unique<MoveTaskToFastestProcessorNode>(*this);
 }
 
+// TODO Split to differantiate between using fastest PP and buying new HC
 void MoveTaskToFastestProcessorNode::process(Phenotype& currentState) {
-    const auto& graph = currentState.graph;
+    // TODO fix to use phenotype internal proc
+    // auto graph = currentState.getGraph();
 
-    std::vector<size_t> fastestProcIds;
-    int fastestProcTime = std::numeric_limits<int>::max();
+    // std::vector<size_t> fastestProcIds;
+    // int fastestProcTime = std::numeric_limits<int>::max();
 
-    for (size_t procId = 0; procId < graph->getProcessorsCount(); procId++) {
-        int time = graph->getTime(procId, taskId);
+    // for (size_t procId = 0; procId < graph->getProcessorsCount(); procId++) {
+    //     int time = graph->getTime(procId, taskId);
 
-        if (time < fastestProcTime) {
-            fastestProcTime = time;
-            fastestProcIds.clear();
-            fastestProcIds.push_back(procId);
-        } else if (time == fastestProcTime) {
-            fastestProcIds.push_back(procId);
-        }
-    }
+    //     if (time < fastestProcTime) {
+    //         fastestProcTime = time;
+    //         fastestProcIds.clear();
+    //         fastestProcIds.push_back(procId);
+    //     } else if (time == fastestProcTime) {
+    //         fastestProcIds.push_back(procId);
+    //     }
+    // }
 
-    std::uniform_int_distribution<int> dist(0, fastestProcIds.size() - 1);
-    const int randomFastestProcIdx = dist(rng);
-    currentState.taskToProcessor[taskId] = fastestProcIds[randomFastestProcIdx];
+    // std::uniform_int_distribution<int> dist(0, fastestProcIds.size() - 1);
+    // const int randomFastestProcIdx = dist(rng);
+    // currentState.taskToProcessor[taskId] = fastestProcIds[randomFastestProcIdx];
 
     Node::process(currentState);
 }
