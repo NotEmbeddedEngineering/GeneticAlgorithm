@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 4.2.0)
+cmake_minimum_required(VERSION 4.1.2)
 project(GeneticAlgorithm)
 
 set(CMAKE_CXX_STANDARD 23)
