@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Phenotype.h"
+#include "Phenotype.hpp"
 #include <memory>
 #include <random>
 #include <vector>

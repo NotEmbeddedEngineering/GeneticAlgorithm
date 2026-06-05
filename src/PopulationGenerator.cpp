@@ -1,4 +1,4 @@
-#include "PopulationGenerator.h"
+#include "PopulationGenerator.hpp"
 
 #include <algorithm>
 #include <functional>

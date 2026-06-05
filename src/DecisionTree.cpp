@@ -1,4 +1,4 @@
-#include "DecisionTree.h"
+#include "DecisionTree.hpp"
 
 DecisionTree::DecisionTree(std::unique_ptr<Node>&& rootNode) : root(std::move(rootNode)) {}
 

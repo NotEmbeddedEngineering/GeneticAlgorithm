@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Node.h"
-#include "Phenotype.h"
+#include "Node.hpp"
+#include "Phenotype.hpp"
 
 class DecisionTree {
 public:

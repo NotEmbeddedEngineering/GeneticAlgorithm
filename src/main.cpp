@@ -1,6 +1,6 @@
-#include "EvolutionParams.h"
-#include "Phenotype.h"
-#include "PopulationGenerator.h"
+#include "EvolutionParams.hpp"
+#include "Phenotype.hpp"
+#include "PopulationGenerator.hpp"
 #include "TaskGraph.h"
 
 #include <exception>

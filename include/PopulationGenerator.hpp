@@ -1,10 +1,10 @@
 #pragma once
 
-#include "DecisionTree.h"
-#include "EvolutionParams.h"
-#include "FunctionType.h"
-#include "Node.h"
-#include "Phenotype.h"
+#include "DecisionTree.hpp"
+#include "EvolutionParams.hpp"
+#include "FunctionType.hpp"
+#include "Node.hpp"
+#include "Phenotype.hpp"
 #include "TaskGraph.h"
 #include <random>
 

@@ -1,4 +1,4 @@
-#include "Phenotype.h"
+#include "Phenotype.hpp"
 #include <algorithm>
 #include <cstddef>
 #include <limits>
