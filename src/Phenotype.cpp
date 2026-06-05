@@ -154,7 +154,107 @@ Phenotype::Phenotype(const std::shared_ptr<TaskGraph> graph) : graph(graph) {
     }
 }
 
-void Phenotype::evaluate() {}
+void Phenotype::evaluate() {
+    // TODO DO THE CHORE
+    // Count indegree for correct order of processing
+    std::vector<size_t> indegree(this->graph->getTaskCount());
+    std::vector<std::vector<size_t>> predecessors(this->graph->getTaskCount(),
+                                                  std::vector<size_t>());
+
+    for (size_t t = 0; t < this->graph->getTaskCount(); ++t) {
+        for (auto [n, _] : this->graph->getAdj()[t]) {
+            ++indegree[n];
+            predecessors[n].push_back(t);
+        }
+    }
+
+    std::queue<size_t> tasksToProcess{};
+    for (size_t t = 0; t < this->graph->getTaskCount(); ++t) {
+        if (indegree[t] == 0) {
+            tasksToProcess.push(t);
+        }
+    }
+
+    std::vector<double> startTimes{};
+    std::vector<double> endTimes{};
+    // Says when proc is made avalivable
+    std::vector<double> phProcFree(this->phenotypeProcToTgProc.size(), 0);
+    std::vector<std::unordered_set<size_t>> phChanConectedPhProcs(this->graph->getChannelsCount(),
+                                                                  std::unordered_set<size_t>());
+    while (!tasksToProcess.empty()) {
+        auto t = tasksToProcess.front();
+        tasksToProcess.pop();
+
+        auto taskPhProc = this->getPhenotypeProcId(t);
+        // Select correct start time
+        // On proc first come first serve
+        startTimes[t] = std::max(startTimes[t], phProcFree[taskPhProc]);
+        endTimes[t] = startTimes[t] + this->graph->getTime(this->getTgProcId(taskPhProc), t);
+
+        // Mark as used up to task end
+        // TODO could introduce timespans fuckery as some task MABEY could go between prev phProcFree and startTimes[t]
+        phProcFree[taskPhProc] = endTimes[t];
+
+        for (auto [nb, data] : this->graph->getAdj()[t]) {
+            double transferTime = 0.0;
+
+            auto tPhProc = this->getPhenotypeProcId(t);
+            auto nbPhProc = this->getPhenotypeProcId(nb);
+
+            if (tPhProc != nbPhProc) {
+
+                auto fastestChanId = this->graph->findFastestChanel(this->getTgProcId(tPhProc),
+                                                                    this->getTgProcId(nbPhProc));
+                phChanConectedPhProcs[fastestChanId].insert(tPhProc);
+                phChanConectedPhProcs[fastestChanId].insert(nbPhProc);
+
+                transferTime = static_cast<double>(data) /
+                               static_cast<double>(this->graph->getChan(fastestChanId).bandwidth);
+                startTimes[nb] = std::max(startTimes[nb], endTimes[t] + transferTime);
+            }
+        }
+    }
+
+    // Now cost CHORE
+    // Check if proc is used.
+    std::vector<bool> phProcUsed(this->phenotypeProcToTgProc.size(), 0);
+    for (auto t : std::views::iota(0uz, this->graph->getTaskCount())) {
+        phProcUsed[this->getPhenotypeProcId(t)] = true;
+    }
+    double cost = 0.0;
+
+    // Add cost of used PPs
+    for (auto phProc : std::views::iota(0uz, this->phenotypeProcToTgProc.size())) {
+        if (phProcUsed[phProc] == false) {
+            // TODO ADD REMOVAL AND UPDATE TO MAP
+            auto taskTgProc = this->graph->getProc(this->getTgProcId(phProc));
+            if (taskTgProc.isPP()) {
+                // Add cost
+                cost += static_cast<double>(taskTgProc.cost);
+            }
+        }
+    }
+
+    // Add task cost
+    for (auto t : std::views::iota(0uz, this->graph->getTaskCount())) {
+        auto tTgProc = this->getTgProcId(this->getPhenotypeProcId(t));
+        cost += this->graph->getCost(tTgProc, t);
+    }
+
+    //   Establish conections of procs
+    for (auto chId : std::views::iota(0uz, phChanConectedPhProcs.size())) {
+        auto chan = this->graph->getChan(chId);
+        // FIX:? Tu nie powinien byc kosz samej szyny + koszt podlaczenia tego procesora?
+        cost += chan.cost * phChanConectedPhProcs[chId].size();
+    }
+    auto endTime = *std::ranges::max_element(endTimes);
+
+    // TODO: improve fitness fn
+    this->startTimes = startTimes;
+    this->endTimes = endTimes;
+    // TODO: IMPROVE, WE HAVE TO DECIDE WEIGHS AND HOW TO TREAT NOT MEETING TIME CONSTRAINT
+    this->fitnessScore = 1.0 / endTime + 1.0 / cost;
+}
 
 size_t Phenotype::getTgProcId(size_t phenotypeProcId) const {
     return phenotypeProcToTgProc[phenotypeProcId];
@@ -175,11 +275,6 @@ size_t Phenotype::addProc(size_t tgProcId) {
 std::shared_ptr<TaskGraph> Phenotype::getGraph() const {
     auto tg_ptr = this->graph;
     return tg_ptr;
-}
-
-bool Phenotype::isValidArchitecture() const {
-    // TODO IMPLEMENT
-    return true;
 }
 
 void Phenotype::changeTaskProc(size_t taskId, size_t phenotypeProcId) {

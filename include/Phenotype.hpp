@@ -33,10 +33,6 @@ public:
     // Change processor assigned to task. (Takes care of processor usage)
     void changeTaskProc(size_t taskId, size_t phenotypeProcId);
 
-    // Check all edge cases with end architecture.
-    // - porcessor not conected to chanells allowing communication
-    bool isValidArchitecture() const;
-
     std::shared_ptr<TaskGraph> getGraph() const;
 
 private:
@@ -52,10 +48,9 @@ private:
     std::vector<int32_t> phenotypeProcUsage{};
 
     // --- Wyniki ---
+    std::vector<double> startTimes{};
+    std::vector<double> endTimes{};
     int32_t time = -1;
     int32_t cost = -1;
     double fitnessScore = 0.0;
-
-    // Czy przekracza hard time constrains
-    // bool isValid();
 };
