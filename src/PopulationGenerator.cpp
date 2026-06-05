@@ -19,19 +19,22 @@ FunctionType PopulationGenerator::randomFunctionType() {
 
 std::unique_ptr<Node> PopulationGenerator::createRandomNode() {
     std::uniform_int_distribution<size_t> taskDist(0, graph->getTaskCount() - 1);
-    std::uniform_int_distribution<size_t> procDist(0, currentSolution.getPhenotypeProcCount() - 1);
+    std::uniform_int_distribution<size_t> phProcDist(0,
+                                                     currentSolution.getPhenotypeProcCount() - 1);
     std::uniform_int_distribution<size_t> channelDist(0, graph->getChannelsCount() - 1);
 
     size_t taskId = taskDist(rng);
-    size_t processorId = procDist(rng);
+    size_t phProcessorId = phProcDist(rng);
+    size_t tgProcessorId = currentSolution.getTgProcId(phProcessorId);
     size_t channelId = channelDist(rng);
 
     // Regenerate if invalid
-    while (graph->getTime(processorId, taskId) == -1) {
+    while (graph->getTime(tgProcessorId, taskId) == -1) {
         taskId = taskDist(rng);
-        processorId = procDist(rng);
+        phProcessorId = phProcDist(rng);
+        tgProcessorId = currentSolution.getTgProcId(phProcessorId);
     }
-    while (!graph->isConnected(channelId, processorId)) {
+    while (!graph->isConnected(channelId, tgProcessorId)) {
         channelId = channelDist(rng);
     }
 
@@ -39,11 +42,15 @@ std::unique_ptr<Node> PopulationGenerator::createRandomNode() {
 
     switch (randomFunctionType()) {
         case FunctionType::CHANGE_PROCESSOR_RANDOM: {
-            node = std::make_unique<ChangeProcessorRandomNode>(taskId, processorId);
+            node = std::make_unique<ChangeProcessorRandomNode>(taskId, phProcessorId);
             break;
         }
-        case FunctionType::MOVE_TASK_TO_FASTEST_PROCESSOR: {
+        case FunctionType::MOVE_TASK_TO_FASTEST_PP: {
             node = std::make_unique<MoveTaskToFastestPPNode>(taskId);
+            break;
+        }
+        case FunctionType::MOVE_TASK_TO_FASTEST_HC: {
+            node = std::make_unique<MoveTaskToFastestHCNode>(taskId);
             break;
         }
         case FunctionType::MOVE_TASK_TO_CHEAPEST_PROCESSOR:

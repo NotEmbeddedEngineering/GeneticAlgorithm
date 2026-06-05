@@ -28,7 +28,7 @@ public:
     ChangeProcessorRandomNode(int taskId, int newPhenotypeProcId);
 
     [[nodiscard]] std::unique_ptr<Node> clone() const override;
-    void process(Phenotype& currentState) override;
+    void process(Phenotype& pheno) override;
 
 private:
     int taskId;
@@ -38,6 +38,17 @@ private:
 class MoveTaskToFastestPPNode : public Node {
 public:
     explicit MoveTaskToFastestPPNode(int taskId);
+
+    [[nodiscard]] std::unique_ptr<Node> clone() const override;
+    void process(Phenotype& pheno) override;
+
+private:
+    int taskId;
+};
+
+class MoveTaskToFastestHCNode : public Node {
+public:
+    explicit MoveTaskToFastestHCNode(int taskId);
 
     [[nodiscard]] std::unique_ptr<Node> clone() const override;
     void process(Phenotype& pheno) override;
