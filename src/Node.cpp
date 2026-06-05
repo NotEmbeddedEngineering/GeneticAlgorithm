@@ -31,16 +31,15 @@ void Node::process(Phenotype& currentState) {
 }
 
 // --- ChangeProcessorRandomNode ---
-ChangeProcessorRandomNode::ChangeProcessorRandomNode(const int taskId, const int newProcId)
-    : taskId(taskId), newProcId(newProcId) {}
+ChangeProcessorRandomNode::ChangeProcessorRandomNode(const int taskId, const int newPhenotypeProcId)
+    : taskId(taskId), newPhenotypeProcId(newPhenotypeProcId) {}
 
 std::unique_ptr<Node> ChangeProcessorRandomNode::clone() const {
     return std::make_unique<ChangeProcessorRandomNode>(*this);
 }
 
 void ChangeProcessorRandomNode::process(Phenotype& currentState) {
-    // TODO fix to use phenotype internal proc
-    // currentState.taskToProcessor[taskId] = newProcId;
+    currentState.changeTaskProc(taskId, newPhenotypeProcId);
     Node::process(currentState);
 }
 

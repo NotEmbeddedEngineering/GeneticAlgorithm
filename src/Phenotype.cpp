@@ -194,3 +194,7 @@ void Phenotype::changeTaskProc(size_t taskId, size_t phenotypeProcId) {
     // New proc is not yet used
     phenotypeProcUsage.push_back(0);
 }
+
+size_t Phenotype::getPhenotypeProcCount() const {
+    return this->phenotypeProcToTgProc.size();
+}

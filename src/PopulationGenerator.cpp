@@ -8,8 +8,8 @@
 #include <valarray>
 
 PopulationGenerator::PopulationGenerator(const std::shared_ptr<TaskGraph> graph,
-                                         const EvolutionParams& params)
-    : graph(graph), params(params), rng(std::random_device{}()) {}
+                                         Phenotype& initialSolution, const EvolutionParams& params)
+    : graph(graph), currentSolution(initialSolution), params(params), rng(std::random_device{}()) {}
 
 FunctionType PopulationGenerator::randomFunctionType() {
     std::uniform_int_distribution<int> dist(1, static_cast<int>(FunctionType::COUNT) - 1);
@@ -18,13 +18,13 @@ FunctionType PopulationGenerator::randomFunctionType() {
 }
 
 std::unique_ptr<Node> PopulationGenerator::createRandomNode() {
-    std::uniform_int_distribution<int> taskDist(0, graph->getTaskCount() - 1);
-    std::uniform_int_distribution<int> procDist(0, graph->getProcessorsCount() - 1);
-    std::uniform_int_distribution<int> channelDist(0, graph->getChannelsCount() - 1);
+    std::uniform_int_distribution<size_t> taskDist(0, graph->getTaskCount() - 1);
+    std::uniform_int_distribution<size_t> procDist(0, currentSolution.getPhenotypeProcCount() - 1);
+    std::uniform_int_distribution<size_t> channelDist(0, graph->getChannelsCount() - 1);
 
-    int taskId = taskDist(rng);
-    int processorId = procDist(rng);
-    int channelId = channelDist(rng);
+    size_t taskId = taskDist(rng);
+    size_t processorId = procDist(rng);
+    size_t channelId = channelDist(rng);
 
     // Regenerate if invalid
     while (graph->getTime(processorId, taskId) == -1) {
@@ -51,6 +51,7 @@ std::unique_ptr<Node> PopulationGenerator::createRandomNode() {
         case FunctionType::CHANGE_CHANNEL_RANDOM:
         case FunctionType::MOVE_PROCESSOR_TO_BEST_BANDWIDTH_CHANNEL:
         case FunctionType::MOVE_PROCESSOR_TO_CHEAPEST_CHANNEL:
+            // TODO: Node
             node = std::make_unique<Node>();
             break;
 
@@ -149,15 +150,15 @@ PopulationGenerator::evaluatePopulation(const std::vector<DecisionTree>& populat
     return evaluatedPopulation;
 }
 
-Phenotype PopulationGenerator::run(const Phenotype& initialSolution) {
+Phenotype PopulationGenerator::run() {
     auto population = generatePopulationZero();
     int noImprovementCounter = 0;
 
-    Phenotype bestPhenotype = initialSolution;
+    Phenotype bestPhenotype = currentSolution;
     double bestFitness = -1e9;
 
     for (int gen = 0; gen < params.maxGenerations; ++gen) {
-        auto evaluated = evaluatePopulation(population, initialSolution);
+        auto evaluated = evaluatePopulation(population, currentSolution);
 
         const auto currentBestIterator = std::ranges::max_element(
             evaluated, {}, [](const auto& x) { return x.phenotype.getFitnessScore(); });

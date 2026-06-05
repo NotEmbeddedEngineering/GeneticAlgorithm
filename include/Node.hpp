@@ -25,14 +25,14 @@ public:
 
 class ChangeProcessorRandomNode : public Node {
 public:
-    ChangeProcessorRandomNode(int taskId, int newProcId);
+    ChangeProcessorRandomNode(int taskId, int newPhenotypeProcId);
 
     [[nodiscard]] std::unique_ptr<Node> clone() const override;
     void process(Phenotype& currentState) override;
 
 private:
     int taskId;
-    int newProcId;
+    int newPhenotypeProcId;
 };
 
 class MoveTaskToFastestProcessorNode : public Node {

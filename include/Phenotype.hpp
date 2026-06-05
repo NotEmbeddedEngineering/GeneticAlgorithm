@@ -12,7 +12,7 @@
 class Phenotype {
 public:
     // Creates base phenotype (fastest) with provided architecture.
-    explicit Phenotype(const std::shared_ptr<TaskGraph> graph);
+    explicit Phenotype(std::shared_ptr<TaskGraph> graph);
 
     // wylicza fitnessScore i wpisuje go
     void evaluate();
@@ -31,6 +31,8 @@ public:
 
     // Change processor assigned to task. (Takes care of processor usage)
     void changeTaskProc(size_t taskId, size_t phenotypeProcId);
+
+    size_t getPhenotypeProcCount() const;
 
     // Check all edge cases with end architecture.
     // - porcessor not conected to chanells allowing communication
