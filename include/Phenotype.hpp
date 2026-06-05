@@ -2,17 +2,14 @@
 
 #include "TaskGraph.hpp"
 
-#include <cstddef>
 #include <memory>
-#include <optional>
-#include <unordered_map>
 #include <unordered_set>
 #include <vector>
 
 class Phenotype {
 public:
     // Creates base phenotype (fastest) with provided architecture.
-    explicit Phenotype(const std::shared_ptr<TaskGraph> graph);
+    explicit Phenotype(std::shared_ptr<TaskGraph> graph);
 
     // wylicza fitnessScore i wpisuje go
     void evaluate();
@@ -25,6 +22,10 @@ public:
     size_t getTgProcId(size_t phenotypeProcId) const;
     // Gets taskId internall procesor
     size_t getPhenotypeProcId(size_t taskId) const;
+    // Get number of processors in phenotype
+    size_t getPhenotypeProcCount() const;
+    // Get the time a processor is used
+    int32_t getPhenotypeProcUsage(size_t phenotypeProcId) const;
 
     // Adds internally new proc based on TaskGraph processor id and returns internal mapping
     size_t addProc(size_t tgProcId);

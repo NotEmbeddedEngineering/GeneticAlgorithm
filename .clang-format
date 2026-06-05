@@ -8,3 +8,5 @@ BreakTemplateDeclarations: Yes
 AccessModifierOffset: -4
 PointerAlignment: Left
 IndentCaseLabels: true
+BreakBinaryOperations: OnePerLine
+BreakBeforeBinaryOperators: NonAssignment

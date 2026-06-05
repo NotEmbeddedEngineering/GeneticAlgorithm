@@ -9,8 +9,7 @@
 #include <memory>
 
 int main() {
-
-    std::shared_ptr<TaskGraph> graph{};
+    std::shared_ptr<TaskGraph> graph;
     try {
         std::string graphPath = "../testGraph.txt";
         graph = std::make_shared<TaskGraph>(graphPath);
@@ -21,11 +20,12 @@ int main() {
 
     const EvolutionParams params(graph->getTaskCount(), graph->getProcessorsCount(), 1.0, 0.1, 0.6,
                                  0.3, 20, 100, 4, 3);
-    PopulationGenerator populationGenerator(graph, params);
-    const Phenotype initialSolution(graph);
+
+    Phenotype initialSolution(graph);
+    PopulationGenerator populationGenerator(graph, initialSolution, params);
 
     auto start = std::chrono::high_resolution_clock::now();
-    Phenotype bestPhenotype = populationGenerator.run(initialSolution);
+    Phenotype bestPhenotype = populationGenerator.run();
     auto end = std::chrono::high_resolution_clock::now();
 
     std::cout << "Czas wykonania: " << std::chrono::duration<double>{end - start}.count() << "s"

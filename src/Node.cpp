@@ -1,6 +1,7 @@
 #include "Node.hpp"
 
 #include <algorithm>
+#include <ranges>
 
 // --- NODE ---
 Node::Node(const Node& from) {
@@ -30,52 +31,68 @@ void Node::process(Phenotype& currentState) {
     }
 }
 
-// --- ChangeProcessorRandomNode ---
-ChangeProcessorRandomNode::ChangeProcessorRandomNode(const int taskId, const int newProcId)
-    : taskId(taskId), newProcId(newProcId) {}
+// --- ChangeProcessorRandom ---
+ChangeProcessorRandomNode::ChangeProcessorRandomNode(const int taskId, const int newPhenotypeProcId)
+    : taskId(taskId), newPhenotypeProcId(newPhenotypeProcId) {}
 
 std::unique_ptr<Node> ChangeProcessorRandomNode::clone() const {
     return std::make_unique<ChangeProcessorRandomNode>(*this);
 }
 
-void ChangeProcessorRandomNode::process(Phenotype& currentState) {
-    // TODO fix to use phenotype internal proc
-    // currentState.taskToProcessor[taskId] = newProcId;
-    Node::process(currentState);
+void ChangeProcessorRandomNode::process(Phenotype& pheno) {
+    pheno.changeTaskProc(taskId, newPhenotypeProcId);
+    Node::process(pheno);
 }
 
-// --- MoveTaskToFastestProcessor ---
-MoveTaskToFastestProcessorNode::MoveTaskToFastestProcessorNode(const int taskId,
-                                                               std::mt19937_64& rng)
-    : taskId(taskId), rng(rng) {}
+// --- MoveTaskToFastestPP ---
+MoveTaskToFastestPPNode::MoveTaskToFastestPPNode(const int taskId) : taskId(taskId) {}
 
-std::unique_ptr<Node> MoveTaskToFastestProcessorNode::clone() const {
-    return std::make_unique<MoveTaskToFastestProcessorNode>(*this);
+std::unique_ptr<Node> MoveTaskToFastestPPNode::clone() const {
+    return std::make_unique<MoveTaskToFastestPPNode>(*this);
 }
 
-// TODO Split to differantiate between using fastest PP and buying new HC
-void MoveTaskToFastestProcessorNode::process(Phenotype& currentState) {
-    // TODO fix to use phenotype internal proc
-    // auto graph = currentState.getGraph();
+void MoveTaskToFastestPPNode::process(Phenotype& pheno) {
+    const auto& graph = pheno.getGraph();
 
-    // std::vector<size_t> fastestProcIds;
-    // int fastestProcTime = std::numeric_limits<int>::max();
+    // Don't buy new PP, assign task to fastest existing PP
+    auto ppProcIt = std::views::iota(0uz, pheno.getPhenotypeProcCount())
+                    | std::views::filter([&](size_t phProcId) {
+                          return graph->getProc(pheno.getTgProcId(phProcId)).isPP();
+                      });
 
-    // for (size_t procId = 0; procId < graph->getProcessorsCount(); procId++) {
-    //     int time = graph->getTime(procId, taskId);
+    const auto bestPhProcId = *std::ranges::min_element(ppProcIt, {}, [&](size_t phProcId) {
+        const size_t tgProcId = pheno.getTgProcId(phProcId);
+        const int32_t procTime = graph->getTime(tgProcId, taskId);
+        const int32_t procUsage = pheno.getPhenotypeProcUsage(phProcId);
 
-    //     if (time < fastestProcTime) {
-    //         fastestProcTime = time;
-    //         fastestProcIds.clear();
-    //         fastestProcIds.push_back(procId);
-    //     } else if (time == fastestProcTime) {
-    //         fastestProcIds.push_back(procId);
-    //     }
-    // }
+        // Sortowanie leksykograficzne bjacz
+        return std::make_pair(procTime, procUsage);
+    });
 
-    // std::uniform_int_distribution<int> dist(0, fastestProcIds.size() - 1);
-    // const int randomFastestProcIdx = dist(rng);
-    // currentState.taskToProcessor[taskId] = fastestProcIds[randomFastestProcIdx];
+    pheno.changeTaskProc(taskId, bestPhProcId);
 
-    Node::process(currentState);
+    Node::process(pheno);
+}
+
+// --- MoveTaskToFastestHC ---
+MoveTaskToFastestHCNode::MoveTaskToFastestHCNode(int taskId) : taskId(taskId) {}
+
+std::unique_ptr<Node> MoveTaskToFastestHCNode::clone() const {
+    return std::make_unique<MoveTaskToFastestHCNode>(*this);
+}
+
+void MoveTaskToFastestHCNode::process(Phenotype& pheno) {
+    const auto& graph = pheno.getGraph();
+
+    // We have to buy new HC
+    auto hcProcIt =
+        std::views::iota(0uz, graph->getProcessorsCount())
+        | std::views::filter([&](size_t tgProcId) { return graph->getProc(tgProcId).isHC(); });
+
+    const auto bestHcProcId = *std::ranges::min_element(
+        hcProcIt, {}, [&](size_t tgProcId) { return graph->getTime(tgProcId, taskId); });
+
+    pheno.addProc(bestHcProcId);
+
+    Node::process(pheno);
 }
