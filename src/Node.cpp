@@ -66,7 +66,7 @@ void MoveTaskToFastestPPNode::process(Phenotype& pheno) {
         const int32_t procUsage = pheno.getPhenotypeProcUsage(phProcId);
 
         // Sortowanie leksykograficzne bjacz
-        return std::make_pair(procTime, procUsage);
+        return std::pair(procTime, procUsage);
     });
 
     pheno.changeTaskProc(taskId, bestPhProcId);
@@ -120,7 +120,7 @@ void MoveTaskToCheapestPPNode::process(Phenotype& pheno) {
             const int32_t procUsage = pheno.getPhenotypeProcUsage(phProcId);
 
             // Sortowanie leksykograficzne bjacz
-            return std::make_pair(proc.cost, procUsage);
+            return std::pair(proc.cost, procUsage);
         });
 
     pheno.changeTaskProc(taskId, cheapestPhProcId);
@@ -147,6 +147,36 @@ void MoveTaskToCheapestHCNode::process(Phenotype& pheno) {
         hcProcIt, {}, [&](const size_t tgProcId) { return graph->getProc(tgProcId).cost; });
 
     pheno.addProc(cheapestHcProcId);
+
+    Node::process(pheno);
+}
+
+// --- MoveTaskToLeastBusyPP ---
+MoveTaskToLeastBusyPP::MoveTaskToLeastBusyPP(const int taskId) : taskId(taskId) {}
+
+std::unique_ptr<Node> MoveTaskToLeastBusyPP::clone() const {
+    return std::make_unique<MoveTaskToLeastBusyPP>(*this);
+}
+
+void MoveTaskToLeastBusyPP::process(Phenotype& pheno) {
+    const auto& graph = pheno.getGraph();
+
+    auto ppProcIt = std::views::iota(0uz, pheno.getPhenotypeProcCount())
+                    | std::views::filter([&](const size_t phProcId) {
+                          return graph->getProc(pheno.getTgProcId(phProcId)).isPP();
+                      });
+
+    const auto leastUsedPhProcId =
+        *std::ranges::min_element(ppProcIt, {}, [&](const size_t phProcId) {
+            const size_t tgProcId = pheno.getTgProcId(phProcId);
+            const Processor& proc = graph->getProc(tgProcId);
+            const int32_t procUsage = pheno.getPhenotypeProcUsage(phProcId);
+
+            // Sortowanie leksykograficzne bjacz
+            return std::pair(procUsage, proc.cost);
+        });
+
+    pheno.changeTaskProc(taskId, leastUsedPhProcId);
 
     Node::process(pheno);
 }

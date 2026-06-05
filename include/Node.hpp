@@ -78,3 +78,14 @@ public:
 private:
     int taskId;
 };
+
+class MoveTaskToLeastBusyPP : public Node {
+public:
+    explicit MoveTaskToLeastBusyPP(int taskId);
+
+    [[nodiscard]] std::unique_ptr<Node> clone() const override;
+    void process(Phenotype& pheno) override;
+
+private:
+    int taskId;
+};
