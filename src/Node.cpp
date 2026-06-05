@@ -1,6 +1,7 @@
 #include "Node.hpp"
 
 #include <algorithm>
+#include <ranges>
 
 // --- NODE ---
 Node::Node(const Node& from) {
@@ -44,37 +45,29 @@ void ChangeProcessorRandomNode::process(Phenotype& currentState) {
 }
 
 // --- MoveTaskToFastestProcessor ---
-MoveTaskToFastestProcessorNode::MoveTaskToFastestProcessorNode(const int taskId,
-                                                               std::mt19937_64& rng)
-    : taskId(taskId), rng(rng) {}
+MoveTaskToFastestPPNode::MoveTaskToFastestPPNode(const int taskId) : taskId(taskId) {}
 
-std::unique_ptr<Node> MoveTaskToFastestProcessorNode::clone() const {
-    return std::make_unique<MoveTaskToFastestProcessorNode>(*this);
+std::unique_ptr<Node> MoveTaskToFastestPPNode::clone() const {
+    return std::make_unique<MoveTaskToFastestPPNode>(*this);
 }
 
-// TODO Split to differantiate between using fastest PP and buying new HC
-void MoveTaskToFastestProcessorNode::process(Phenotype& currentState) {
-    // TODO fix to use phenotype internal proc
-    // auto graph = currentState.getGraph();
+void MoveTaskToFastestPPNode::process(Phenotype& pheno) {
+    const std::shared_ptr<TaskGraph> graph = pheno.getGraph();
 
-    // std::vector<size_t> fastestProcIds;
-    // int fastestProcTime = std::numeric_limits<int>::max();
+    auto ppProcIt =
+        std::views::iota(0uz, pheno.getPhenotypeProcCount())
+        | std::views::filter([&](size_t tgProcId) { return graph->getProc(tgProcId).isPP(); });
 
-    // for (size_t procId = 0; procId < graph->getProcessorsCount(); procId++) {
-    //     int time = graph->getTime(procId, taskId);
+    const auto bestPhProcId = *std::ranges::min_element(ppProcIt, {}, [&](size_t phProcId) {
+        const size_t tgProcId = pheno.getTgProcId(phProcId);
+        const int32_t procTime = graph->getTime(tgProcId, taskId);
+        const int32_t procUsage = pheno.getPhenotypeProcUsage(phProcId);
 
-    //     if (time < fastestProcTime) {
-    //         fastestProcTime = time;
-    //         fastestProcIds.clear();
-    //         fastestProcIds.push_back(procId);
-    //     } else if (time == fastestProcTime) {
-    //         fastestProcIds.push_back(procId);
-    //     }
-    // }
+        // Sortowanie leksykograficzne bjacz
+        return std::make_pair(procTime, procUsage);
+    });
 
-    // std::uniform_int_distribution<int> dist(0, fastestProcIds.size() - 1);
-    // const int randomFastestProcIdx = dist(rng);
-    // currentState.taskToProcessor[taskId] = fastestProcIds[randomFastestProcIdx];
+    pheno.changeTaskProc(taskId, bestPhProcId);
 
-    Node::process(currentState);
+    Node::process(pheno);
 }

@@ -35,14 +35,13 @@ private:
     int newPhenotypeProcId;
 };
 
-class MoveTaskToFastestProcessorNode : public Node {
+class MoveTaskToFastestPPNode : public Node {
 public:
-    explicit MoveTaskToFastestProcessorNode(int taskId, std::mt19937_64& rng);
+    explicit MoveTaskToFastestPPNode(int taskId);
 
     [[nodiscard]] std::unique_ptr<Node> clone() const override;
-    void process(Phenotype& currentState) override;
+    void process(Phenotype& pheno) override;
 
 private:
     int taskId;
-    std::mt19937_64& rng;
 };

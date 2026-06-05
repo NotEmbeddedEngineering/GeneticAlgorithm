@@ -43,7 +43,7 @@ std::unique_ptr<Node> PopulationGenerator::createRandomNode() {
             break;
         }
         case FunctionType::MOVE_TASK_TO_FASTEST_PROCESSOR: {
-            node = std::make_unique<MoveTaskToFastestProcessorNode>(taskId, rng);
+            node = std::make_unique<MoveTaskToFastestPPNode>(taskId);
             break;
         }
         case FunctionType::MOVE_TASK_TO_CHEAPEST_PROCESSOR:
@@ -173,8 +173,11 @@ Phenotype PopulationGenerator::run() {
         }
 
         if (noImprovementCounter >= params.epsilon) {
-            std::cout << "Brak poprawy przez " << noImprovementCounter << " generacji. Koniec."
-                      << std::endl;
+            std::cout
+                << "Brak poprawy przez "
+                << noImprovementCounter
+                << " generacji. Koniec."
+                << std::endl;
             break;
         }
 
@@ -205,9 +208,11 @@ PopulationGenerator::selection(const std::vector<EvaluatedTree>& population, int
         weights[0] = 1.0;
     else
         for (size_t rank{}; rank < N; ++rank) {
-            weights[rank] = selectionPressure - 2 * (selectionPressure - 1) *
-                                                    static_cast<double>(rank) /
-                                                    (static_cast<double>(N) - 1);
+            weights[rank] = selectionPressure
+                            - 2
+                            * (selectionPressure - 1)
+                            * static_cast<double>(rank)
+                            / (static_cast<double>(N) - 1);
             if (weights[rank] < 0)
                 weights[rank] = 0;
             sum += weights[rank];

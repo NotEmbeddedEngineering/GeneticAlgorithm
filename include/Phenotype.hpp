@@ -2,10 +2,7 @@
 
 #include "TaskGraph.hpp"
 
-#include <cstddef>
 #include <memory>
-#include <optional>
-#include <unordered_map>
 #include <unordered_set>
 #include <vector>
 
@@ -25,14 +22,16 @@ public:
     size_t getTgProcId(size_t phenotypeProcId) const;
     // Gets taskId internall procesor
     size_t getPhenotypeProcId(size_t taskId) const;
+    // Get number of processors in phenotype
+    size_t getPhenotypeProcCount() const;
+    // Get the time a processor is used
+    int32_t getPhenotypeProcUsage(size_t phenotypeProcId) const;
 
     // Adds internally new proc based on TaskGraph processor id and returns internal mapping
     size_t addProc(size_t tgProcId);
 
     // Change processor assigned to task. (Takes care of processor usage)
     void changeTaskProc(size_t taskId, size_t phenotypeProcId);
-
-    size_t getPhenotypeProcCount() const;
 
     // Check all edge cases with end architecture.
     // - porcessor not conected to chanells allowing communication

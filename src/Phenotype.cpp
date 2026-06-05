@@ -4,6 +4,7 @@
 #include <limits>
 #include <queue>
 #include <ranges>
+#include <unordered_map>
 #include <unordered_set>
 #include <utility>
 #include <vector>
@@ -197,4 +198,7 @@ void Phenotype::changeTaskProc(size_t taskId, size_t phenotypeProcId) {
 
 size_t Phenotype::getPhenotypeProcCount() const {
     return this->phenotypeProcToTgProc.size();
+}
+int32_t Phenotype::getPhenotypeProcUsage(size_t phenotypeProcId) const {
+    return this->phenotypeProcUsage[phenotypeProcId];
 }
