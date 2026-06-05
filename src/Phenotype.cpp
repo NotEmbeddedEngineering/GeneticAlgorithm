@@ -12,7 +12,6 @@ Phenotype::Phenotype(const std::shared_ptr<TaskGraph> graph) : graph(graph) {
     // Init internals
     this->taskToPhenotypeProcessor = std::vector<size_t>(this->graph->getTaskCount(), 0);
     this->phenotypeProcToChannel = {};
-    this->phenotypeProcToChannel = {};
     this->phenotypeProcUsage = {};
 
     // Count indegree for correct order of processing
@@ -65,9 +64,9 @@ Phenotype::Phenotype(const std::shared_ptr<TaskGraph> graph) : graph(graph) {
         if (predecessors[t].empty()) {
             endTimes[t] = minTime;
             // No predecessors we WANT to buy new proc always
-            this->taskToPhenotypeProcessor[t] = phenotypeProcToTgProc.size();
             this->phenotypeProcToTgProc.push_back(bestProcId);
             this->phenotypeProcUsage.push_back(minTime);
+            this->taskToPhenotypeProcessor[t] = phenotypeProcToTgProc.size() - 1;
             continue;
         }
 
@@ -77,9 +76,9 @@ Phenotype::Phenotype(const std::shared_ptr<TaskGraph> graph) : graph(graph) {
             auto predTgProc = this->getTgProcId(this->getPhenotypeProcId(predId));
             if (predTgProc != bestProcId || this->graph->getProc(predTgProc).isHC()) {
                 auto bestChanId = this->graph->findFastestChanel(predTgProc, bestProcId);
-                auto [_, data] = *std::find_if(
-                    this->graph->getAdj()[predId].begin(), this->graph->getAdj()[predId].end(),
-                    [t](Edge e) { return static_cast<size_t>(e.targetTaskId) == t; });
+                auto [_, data] = *std::ranges::find_if(this->graph->getAdj()[predId], [t](Edge e) {
+                    return static_cast<size_t>(e.targetTaskId) == t;
+                });
 
                 int32_t maxTransfer = this->graph->getChan(bestChanId).bandwidth;
 
@@ -94,16 +93,17 @@ Phenotype::Phenotype(const std::shared_ptr<TaskGraph> graph) : graph(graph) {
 
         if (this->graph->getProc(bestProcId).isHC()) {
             // Just add proc and dont care
-            this->taskToPhenotypeProcessor[t] = phenotypeProcToTgProc.size();
             this->phenotypeProcToTgProc.push_back(bestProcId);
             this->phenotypeProcUsage.push_back(minTime);
+            this->taskToPhenotypeProcessor[t] = phenotypeProcToTgProc.size() - 1;
             endTimes[t] = minTime + earliestStart;
         } else {
             // Do some PP shinanigans
             if (phenotypeProcToTgProc[taskToPhenotypeProcessor[*lastPredIt]] == bestProcId) {
                 // no transfer needed just use last pred proc
                 bool assignable = true;
-                for (auto [s, e] : phenotypeProcTimespans[taskToPhenotypeProcessor[*lastPredIt]]) {
+                for (const auto& [s, e] :
+                     phenotypeProcTimespans[taskToPhenotypeProcessor[*lastPredIt]]) {
                     if ((s > earliestStart && s < earliestStart + minTime) ||
                         (e > earliestStart && e < earliestStart + minTime)) {
                         assignable = false;
@@ -112,8 +112,8 @@ Phenotype::Phenotype(const std::shared_ptr<TaskGraph> graph) : graph(graph) {
 
                 if (assignable) {
                     this->taskToPhenotypeProcessor[t] = taskToPhenotypeProcessor[*lastPredIt];
-                    phenotypeProcTimespans[taskToPhenotypeProcessor[*lastPredIt]].push_back(
-                        {earliestStart, earliestStart + minTime});
+                    phenotypeProcTimespans[taskToPhenotypeProcessor[*lastPredIt]].emplace_back(
+                        earliestStart, earliestStart + minTime);
                     endTimes[t] = minTime + earliestStart;
                     this->phenotypeProcUsage[this->taskToPhenotypeProcessor[t]] += minTime;
                     continue;
@@ -125,7 +125,7 @@ Phenotype::Phenotype(const std::shared_ptr<TaskGraph> graph) : graph(graph) {
                 if (phenotypeProcToTgProc[phProcId] == bestProcId) {
                     // Check if we cna insert
                     bool assignable = true;
-                    for (auto [s, e] : phenotypeProcTimespans[phProcId]) {
+                    for (const auto& [s, e] : phenotypeProcTimespans[phProcId]) {
                         if ((s > earliestStart && s < earliestStart + minTime) ||
                             (e > earliestStart && e < earliestStart + minTime)) {
                             assignable = false;
@@ -133,11 +133,11 @@ Phenotype::Phenotype(const std::shared_ptr<TaskGraph> graph) : graph(graph) {
                     }
                     if (assignable) {
                         this->taskToPhenotypeProcessor[t] = taskToPhenotypeProcessor[*lastPredIt];
-                        phenotypeProcTimespans[taskToPhenotypeProcessor[*lastPredIt]].push_back(
-                            {earliestStart, earliestStart + minTime});
+                        phenotypeProcTimespans[taskToPhenotypeProcessor[*lastPredIt]].emplace_back(
+                            earliestStart, earliestStart + minTime);
                         endTimes[t] = minTime + earliestStart;
                         this->phenotypeProcUsage[this->taskToPhenotypeProcessor[t]] += minTime;
-
+                        assigned = true;
                         break;
                     }
                 }
@@ -145,9 +145,10 @@ Phenotype::Phenotype(const std::shared_ptr<TaskGraph> graph) : graph(graph) {
             if (assigned) {
                 continue;
             }
-            this->taskToPhenotypeProcessor[t] = phenotypeProcToTgProc.size();
+
             this->phenotypeProcToTgProc.push_back(bestProcId);
-            this->phenotypeProcUsage[this->taskToPhenotypeProcessor[t]] += minTime;
+            this->phenotypeProcUsage.push_back(minTime);
+            this->taskToPhenotypeProcessor[t] = phenotypeProcToTgProc.size() - 1;
             endTimes[t] = minTime + earliestStart;
         }
     }
