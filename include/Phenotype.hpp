@@ -1,6 +1,6 @@
 #pragma once
 
-#include "TaskGraph.h"
+#include "TaskGraph.hpp"
 
 #include <cstddef>
 #include <memory>

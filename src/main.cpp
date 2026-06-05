@@ -1,7 +1,7 @@
 #include "EvolutionParams.hpp"
 #include "Phenotype.hpp"
 #include "PopulationGenerator.hpp"
-#include "TaskGraph.h"
+#include "TaskGraph.hpp"
 
 #include <exception>
 #include <iostream>

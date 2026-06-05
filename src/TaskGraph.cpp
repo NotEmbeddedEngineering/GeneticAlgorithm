@@ -1,4 +1,4 @@
-#include "TaskGraph.h"
+#include "TaskGraph.hpp"
 
 #include <algorithm>
 #include <cstddef>

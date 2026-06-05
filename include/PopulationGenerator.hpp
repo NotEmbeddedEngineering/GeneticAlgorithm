@@ -5,7 +5,7 @@
 #include "FunctionType.hpp"
 #include "Node.hpp"
 #include "Phenotype.hpp"
-#include "TaskGraph.h"
+#include "TaskGraph.hpp"
 #include <random>
 
 class PopulationGenerator {
