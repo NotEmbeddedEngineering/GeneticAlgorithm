@@ -62,7 +62,7 @@ std::unique_ptr<Node> PopulationGenerator::createRandomNode() {
     return node;
 }
 
-void PopulationGenerator::expandTree(std::unique_ptr<Node>& currentNode, const int remainingDepth) {
+void PopulationGenerator::expandTree(Node* currentNode, const int remainingDepth) {
     if (remainingDepth <= 0)
         return;
 
@@ -74,14 +74,14 @@ void PopulationGenerator::expandTree(std::unique_ptr<Node>& currentNode, const i
     const int range = numChilds(rng);
     for (int i = 0; i < range; ++i) {
         auto child = createRandomNode();
-        expandTree(child, remainingDepth - 1);
+        expandTree(child.get(), remainingDepth - 1);
         currentNode->children.push_back(std::move(child));
     }
 }
 
 DecisionTree PopulationGenerator::buildSingleTree(const int maxDepth) {
     auto root = std::make_unique<Node>();
-    expandTree(root, maxDepth);
+    expandTree(root.get(), maxDepth);
 
     return DecisionTree(std::move(root));
 }
