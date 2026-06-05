@@ -47,14 +47,11 @@ std::unique_ptr<Node> PopulationGenerator::createRandomNode() {
             break;
         }
         case FunctionType::MOVE_TASK_TO_CHEAPEST_PROCESSOR:
-            break;
         case FunctionType::MOVE_TASK_TO_LEAST_BUSY_PROCESSOR:
-            break;
         case FunctionType::CHANGE_CHANNEL_RANDOM:
-            break;
         case FunctionType::MOVE_PROCESSOR_TO_BEST_BANDWIDTH_CHANNEL:
-            break;
         case FunctionType::MOVE_PROCESSOR_TO_CHEAPEST_CHANNEL:
+            node = std::make_unique<Node>();
             break;
 
         case FunctionType::NO_OPERATION:
@@ -65,7 +62,7 @@ std::unique_ptr<Node> PopulationGenerator::createRandomNode() {
     return node;
 }
 
-void PopulationGenerator::expandTree(Node* currentNode, const int remainingDepth) {
+void PopulationGenerator::expandTree(std::unique_ptr<Node>& currentNode, const int remainingDepth) {
     if (remainingDepth <= 0)
         return;
 
@@ -77,14 +74,14 @@ void PopulationGenerator::expandTree(Node* currentNode, const int remainingDepth
     const int range = numChilds(rng);
     for (int i = 0; i < range; ++i) {
         auto child = createRandomNode();
-        expandTree(child.get(), remainingDepth - 1);
+        expandTree(child, remainingDepth - 1);
         currentNode->children.push_back(std::move(child));
     }
 }
 
 DecisionTree PopulationGenerator::buildSingleTree(const int maxDepth) {
     auto root = std::make_unique<Node>();
-    expandTree(root.get(), maxDepth);
+    expandTree(root, maxDepth);
 
     return DecisionTree(std::move(root));
 }

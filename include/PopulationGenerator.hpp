@@ -51,7 +51,7 @@ private:
     std::unique_ptr<Node> createRandomNode();
 
     // DFS do budownia galezi
-    void expandTree(Node* currentNode, int remainingDepth);
+    void expandTree(std::unique_ptr<Node>&, int remainingDepth);
 
     // generator jednego drzewa
     DecisionTree buildSingleTree(int maxDepth);

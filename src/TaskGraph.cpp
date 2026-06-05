@@ -92,8 +92,7 @@ TaskGraph::TaskGraph(std::string filePath) {
     int32_t chanelCount = -1;
 
     std::string lineStart{};
-    while (!fileStream.eof()) {
-        fileStream >> lineStart;
+    while (fileStream >> lineStart) {
         // FIX: Idk it still holds not empty stream at the end of file
         if (fileStream.eof()) {
             break;
