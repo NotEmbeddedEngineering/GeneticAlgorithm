@@ -53,7 +53,14 @@ std::unique_ptr<Node> PopulationGenerator::createRandomNode() {
             node = std::make_unique<MoveTaskToFastestHCNode>(taskId);
             break;
         }
-        case FunctionType::MOVE_TASK_TO_CHEAPEST_PROCESSOR:
+        case FunctionType::MOVE_TASK_TO_CHEAPEST_PP: {
+            node = std::make_unique<MoveTaskToCheapestPPNode>(taskId);
+            break;
+        }
+        case FunctionType::MOVE_TASK_TO_CHEAPEST_HC: {
+            node = std::make_unique<MoveTaskToCheapestHCNode>(taskId);
+            break;
+        }
         case FunctionType::MOVE_TASK_TO_LEAST_BUSY_PROCESSOR:
         case FunctionType::CHANGE_CHANNEL_RANDOM:
         case FunctionType::MOVE_PROCESSOR_TO_BEST_BANDWIDTH_CHANNEL:

@@ -56,3 +56,25 @@ public:
 private:
     int taskId;
 };
+
+class MoveTaskToCheapestPPNode : public Node {
+public:
+    explicit MoveTaskToCheapestPPNode(int taskId);
+
+    [[nodiscard]] std::unique_ptr<Node> clone() const override;
+    void process(Phenotype& pheno) override;
+
+private:
+    int taskId;
+};
+
+class MoveTaskToCheapestHCNode : public Node {
+public:
+    explicit MoveTaskToCheapestHCNode(int taskId);
+
+    [[nodiscard]] std::unique_ptr<Node> clone() const override;
+    void process(Phenotype& pheno) override;
+
+private:
+    int taskId;
+};

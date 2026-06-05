@@ -56,11 +56,11 @@ void MoveTaskToFastestPPNode::process(Phenotype& pheno) {
 
     // Don't buy new PP, assign task to fastest existing PP
     auto ppProcIt = std::views::iota(0uz, pheno.getPhenotypeProcCount())
-                    | std::views::filter([&](size_t phProcId) {
+                    | std::views::filter([&](const size_t phProcId) {
                           return graph->getProc(pheno.getTgProcId(phProcId)).isPP();
                       });
 
-    const auto bestPhProcId = *std::ranges::min_element(ppProcIt, {}, [&](size_t phProcId) {
+    const auto bestPhProcId = *std::ranges::min_element(ppProcIt, {}, [&](const size_t phProcId) {
         const size_t tgProcId = pheno.getTgProcId(phProcId);
         const int32_t procTime = graph->getTime(tgProcId, taskId);
         const int32_t procUsage = pheno.getPhenotypeProcUsage(phProcId);
@@ -75,7 +75,7 @@ void MoveTaskToFastestPPNode::process(Phenotype& pheno) {
 }
 
 // --- MoveTaskToFastestHC ---
-MoveTaskToFastestHCNode::MoveTaskToFastestHCNode(int taskId) : taskId(taskId) {}
+MoveTaskToFastestHCNode::MoveTaskToFastestHCNode(const int taskId) : taskId(taskId) {}
 
 std::unique_ptr<Node> MoveTaskToFastestHCNode::clone() const {
     return std::make_unique<MoveTaskToFastestHCNode>(*this);
@@ -85,14 +85,68 @@ void MoveTaskToFastestHCNode::process(Phenotype& pheno) {
     const auto& graph = pheno.getGraph();
 
     // We have to buy new HC
-    auto hcProcIt =
-        std::views::iota(0uz, graph->getProcessorsCount())
-        | std::views::filter([&](size_t tgProcId) { return graph->getProc(tgProcId).isHC(); });
+    auto hcProcIt = std::views::iota(0uz, graph->getProcessorsCount())
+                    | std::views::filter(
+                        [&](const size_t tgProcId) { return graph->getProc(tgProcId).isHC(); });
 
     const auto bestHcProcId = *std::ranges::min_element(
-        hcProcIt, {}, [&](size_t tgProcId) { return graph->getTime(tgProcId, taskId); });
+        hcProcIt, {}, [&](const size_t tgProcId) { return graph->getTime(tgProcId, taskId); });
 
     pheno.addProc(bestHcProcId);
+
+    Node::process(pheno);
+}
+
+// --- MoveTaskToCheapestPP ---
+MoveTaskToCheapestPPNode::MoveTaskToCheapestPPNode(const int taskId) : taskId(taskId) {}
+
+std::unique_ptr<Node> MoveTaskToCheapestPPNode::clone() const {
+    return std::make_unique<MoveTaskToCheapestPPNode>(*this);
+}
+
+void MoveTaskToCheapestPPNode::process(Phenotype& pheno) {
+    const auto& graph = pheno.getGraph();
+
+    // Don't buy new PP, assign task to cheapest existing PP
+    auto ppProcIt = std::views::iota(0uz, pheno.getPhenotypeProcCount())
+                    | std::views::filter([&](const size_t phProcId) {
+                          return graph->getProc(pheno.getTgProcId(phProcId)).isPP();
+                      });
+
+    const auto cheapestPhProcId =
+        *std::ranges::min_element(ppProcIt, {}, [&](const size_t phProcId) {
+            const size_t tgProcId = pheno.getTgProcId(phProcId);
+            const Processor& proc = graph->getProc(tgProcId);
+            const int32_t procUsage = pheno.getPhenotypeProcUsage(phProcId);
+
+            // Sortowanie leksykograficzne bjacz
+            return std::make_pair(proc.cost, procUsage);
+        });
+
+    pheno.changeTaskProc(taskId, cheapestPhProcId);
+
+    Node::process(pheno);
+}
+
+// --- MoveTaskToCheapestHC ---
+MoveTaskToCheapestHCNode::MoveTaskToCheapestHCNode(const int taskId) : taskId(taskId) {}
+
+std::unique_ptr<Node> MoveTaskToCheapestHCNode::clone() const {
+    return std::make_unique<MoveTaskToCheapestHCNode>(*this);
+}
+
+void MoveTaskToCheapestHCNode::process(Phenotype& pheno) {
+    const auto& graph = pheno.getGraph();
+
+    // We have to buy new HC
+    auto hcProcIt = std::views::iota(0uz, graph->getProcessorsCount())
+                    | std::views::filter(
+                        [&](const size_t tgProcId) { return graph->getProc(tgProcId).isHC(); });
+
+    const auto cheapestHcProcId = *std::ranges::min_element(
+        hcProcIt, {}, [&](const size_t tgProcId) { return graph->getProc(tgProcId).cost; });
+
+    pheno.addProc(cheapestHcProcId);
 
     Node::process(pheno);
 }
