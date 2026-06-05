@@ -4,6 +4,7 @@
 #include <limits>
 #include <queue>
 #include <ranges>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -66,7 +67,7 @@ Phenotype::Phenotype(const std::shared_ptr<TaskGraph> graph) : graph(graph) {
             // No predecessors we WANT to buy new proc always
             this->taskToPhenotypeProcessor[t] = phenotypeProcToTgProc.size();
             this->phenotypeProcToTgProc.push_back(bestProcId);
-            this->phenotypeProcUsage[t] = minTime;
+            this->phenotypeProcUsage.push_back(minTime);
             continue;
         }
 
@@ -95,7 +96,7 @@ Phenotype::Phenotype(const std::shared_ptr<TaskGraph> graph) : graph(graph) {
             // Just add proc and dont care
             this->taskToPhenotypeProcessor[t] = phenotypeProcToTgProc.size();
             this->phenotypeProcToTgProc.push_back(bestProcId);
-            this->phenotypeProcUsage[t] = minTime;
+            this->phenotypeProcUsage.push_back(minTime);
             endTimes[t] = minTime + earliestStart;
         } else {
             // Do some PP shinanigans
@@ -152,6 +153,9 @@ Phenotype::Phenotype(const std::shared_ptr<TaskGraph> graph) : graph(graph) {
     }
 
     // Add chanels to processors
+    this->phenotypeProcToChannel =
+        std::vector(this->phenotypeProcToTgProc.size(), std::unordered_set<size_t>());
+
     for (size_t t = 0; t < this->graph->getTaskCount(); ++t) {
         for (auto [n, _] : this->graph->getAdj()[t]) {
             auto tProc = this->taskToPhenotypeProcessor[t];
