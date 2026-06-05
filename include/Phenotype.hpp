@@ -47,10 +47,6 @@ private:
     // Maps Internal phenotypeProcId to Task Graph Processor
     std::vector<size_t> phenotypeProcToTgProc{};
 
-    // phenotypeProcToChannel[phenotypeProcId] = std::unordered_set<channelId>
-    // All chanells conected to this processor
-    std::vector<std::unordered_set<size_t>> phenotypeProcToChannel{};
-
     // Stores how much time each phenotype proc uses
     std::vector<int32_t> phenotypeProcUsage{};
 
