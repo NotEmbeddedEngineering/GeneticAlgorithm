@@ -1,18 +1,20 @@
 #include "TaskGraph.h"
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <format>
 #include <fstream>
 #include <iostream>
+#include <ranges>
 #include <stdexcept>
 #include <vector>
 
-constexpr bool Processor::isHC() const {
+bool Processor::isHC() const {
     return type == PeType::HC;
 }
 
-constexpr bool Processor::isPP() const {
+bool Processor::isPP() const {
     return type == PeType::PP;
 }
 
@@ -50,6 +52,30 @@ size_t TaskGraph::getProcessorsCount() const {
 }
 size_t TaskGraph::getChannelsCount() const {
     return this->channels.size();
+}
+
+const std::vector<std::vector<Edge>>& TaskGraph::getAdj() const {
+    return this->adjList;
+}
+
+const Processor& TaskGraph::getProc(size_t procId) const {
+    return this->processors[procId];
+}
+
+const Channel& TaskGraph::getChan(size_t chanId) const {
+    return this->channels[chanId];
+}
+
+int32_t TaskGraph::findFastestChanel(size_t proc1Id, size_t proc2Id) const {
+    auto chanView = std::views::iota(static_cast<size_t>(0), this->getChannelsCount());
+    auto bestChanIt = std::ranges::max_element(chanView, {}, [&, proc1Id, proc2Id](int32_t chanId) {
+        if (this->isConnected(chanId, proc1Id) && this->isConnected(chanId, proc2Id)) {
+            return this->getChan(chanId).bandwidth;
+        }
+        return std::numeric_limits<int32_t>::min();
+    });
+
+    return *bestChanIt;
 }
 
 TaskGraph::TaskGraph(std::string filePath) {

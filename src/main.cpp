@@ -13,15 +13,17 @@ int main() {
     try {
         std::string graphPath = "./testGraph.txt";
         graph = std::make_shared<TaskGraph>(graphPath);
+        // auto basePh = Phenotype(graph);
     } catch (std::exception& e) {
         std::cerr << e.what() << std::endl;
         exit(1);
     }
+
     const EvolutionParams params(graph->getTaskCount(), graph->getProcessorsCount(), 5.0, 0.1, 0.6,
                                  0.3, 20, 100, 10);
-    PopulationGenerator populationGenerator(graph, params);
+    // PopulationGenerator populationGenerator(graph, params);
     const Phenotype initialSolution(graph); // TODO: wygeneruj pierwszy, najgorszy fenotyp
-    populationGenerator.run(initialSolution);
+    // populationGenerator.run(initialSolution);
 
     return 0;
 }

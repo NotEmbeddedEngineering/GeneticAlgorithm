@@ -49,8 +49,7 @@ private:
 
     // phenotypeProcToChannel[phenotypeProcId] = std::unordered_set<channelId>
     // All chanells conected to this processor
-    std::vector<std::unordered_set<size_t>> phenotypeProcToPhenotypeChannel{};
-    std::vector<size_t> phenotypeChannelToTgChannel{};
+    std::vector<std::unordered_set<size_t>> phenotypeProcToChannel{};
 
     // Stores how much time each phenotype proc uses
     std::vector<int32_t> phenotypeProcUsage{};

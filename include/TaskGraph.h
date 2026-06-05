@@ -19,8 +19,8 @@ struct Processor {
     int32_t cost;
     int32_t other;
     PeType type;
-    constexpr bool isHC() const;
-    constexpr bool isPP() const;
+    bool isHC() const;
+    bool isPP() const;
 };
 
 struct Channel {
@@ -53,6 +53,13 @@ public:
     size_t getTaskCount() const;
     size_t getProcessorsCount() const;
     size_t getChannelsCount() const;
+
+    const std::vector<std::vector<Edge>>& getAdj() const;
+    const Processor& getProc(size_t procId) const;
+    const Channel& getChan(size_t chanId) const;
+
+    // Finds fastest time between two procesors, and fastest chan for sam type of HC
+    int32_t findFastestChanel(size_t proc1Id, size_t proc2Id) const;
 
 private:
     // =================
