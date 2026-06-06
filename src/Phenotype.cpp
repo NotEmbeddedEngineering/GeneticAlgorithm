@@ -82,8 +82,9 @@ Phenotype::Phenotype(const std::shared_ptr<TaskGraph> graph) : graph(graph) {
 
                 int32_t maxTransfer = this->graph->getChan(bestChanId).bandwidth;
 
-                return endTimes[predId] +
-                       static_cast<double>(data) / static_cast<double>(maxTransfer);
+                return endTimes[predId]
+                       + static_cast<double>(data)
+                       / static_cast<double>(maxTransfer);
             }
             return endTimes[predId];
         };
@@ -104,8 +105,8 @@ Phenotype::Phenotype(const std::shared_ptr<TaskGraph> graph) : graph(graph) {
                 bool assignable = true;
                 for (const auto& [s, e] :
                      phenotypeProcTimespans[taskToPhenotypeProcessor[*lastPredIt]]) {
-                    if ((s > earliestStart && s < earliestStart + minTime) ||
-                        (e > earliestStart && e < earliestStart + minTime)) {
+                    if ((s > earliestStart && s < earliestStart + minTime)
+                        || (e > earliestStart && e < earliestStart + minTime)) {
                         assignable = false;
                     }
                 }
@@ -175,8 +176,8 @@ void Phenotype::evaluate() {
         }
     }
 
-    std::vector<double> startTimes{};
-    std::vector<double> endTimes{};
+    std::vector<double> startTimes(this->graph->getTaskCount());
+    std::vector<double> endTimes(this->graph->getTaskCount());
     // Says when proc is made avalivable
     std::vector<double> phProcFree(this->phenotypeProcToTgProc.size(), 0);
     std::vector<std::unordered_set<size_t>> phChanConectedPhProcs(this->graph->getChannelsCount(),
@@ -208,8 +209,8 @@ void Phenotype::evaluate() {
                 phChanConectedPhProcs[fastestChanId].insert(tPhProc);
                 phChanConectedPhProcs[fastestChanId].insert(nbPhProc);
 
-                transferTime = static_cast<double>(data) /
-                               static_cast<double>(this->graph->getChan(fastestChanId).bandwidth);
+                transferTime = static_cast<double>(data)
+                               / static_cast<double>(this->graph->getChan(fastestChanId).bandwidth);
                 startTimes[nb] = std::max(startTimes[nb], endTimes[t] + transferTime);
             }
         }
