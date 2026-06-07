@@ -55,22 +55,37 @@ void MoveTaskToFastestPPNode::process(Phenotype& pheno) {
     const auto& graph = pheno.getGraph();
 
     // Don't buy new PP, assign task to fastest existing PP
-    auto ppProcIt = std::views::iota(0uz, pheno.getPhenotypeProcCount())
-                    | std::views::filter([&](const size_t phProcId) {
-                          return graph->getProc(pheno.getTgProcId(phProcId)).isPP();
-                      });
+    auto ppProcView = std::views::iota(0uz, pheno.getPhenotypeProcCount())
+                      | std::views::filter([&](const size_t phProcId) {
+                            return graph->getProc(pheno.getTgProcId(phProcId)).isPP();
+                        });
 
-    const auto bestPhProcId = *std::ranges::min_element(ppProcIt, {}, [&](const size_t phProcId) {
-        const size_t tgProcId = pheno.getTgProcId(phProcId);
-        const int32_t procTime = graph->getTime(tgProcId, taskId);
-        const int32_t procUsage = pheno.getPhenotypeProcUsage(phProcId);
+    size_t bestPhProcId;
+    if (std::ranges::empty(ppProcView)) {
+        // If no PPs bought, then buy the best one
+        auto graphPpProcView = std::views::iota(0uz, graph->getProcessorsCount())
+                               | std::views::filter([&](const size_t tgProcId) {
+                                     return graph->getProc(tgProcId).isPP();
+                                 });
+        size_t bestToBuyId =
+            *std::ranges::min_element(graphPpProcView, {}, [&](const size_t tgProcId) {
+                const int32_t procTime = graph->getTime(tgProcId, taskId);
+                const int32_t procCost = graph->getProc(tgProcId).cost;
+                return std::pair(procTime, procCost);
+            });
+        bestPhProcId = pheno.addProc(bestToBuyId);
+    } else {
+        bestPhProcId = *std::ranges::min_element(ppProcView, {}, [&](const size_t phProcId) {
+            const size_t tgProcId = pheno.getTgProcId(phProcId);
+            const int32_t procTime = graph->getTime(tgProcId, taskId);
+            const int32_t procUsage = pheno.getPhenotypeProcUsage(phProcId);
 
-        // Sortowanie leksykograficzne bjacz
-        return std::pair(procTime, procUsage);
-    });
+            // Sortowanie leksykograficzne bjacz
+            return std::pair(procTime, procUsage);
+        });
+    }
 
     pheno.changeTaskProc(taskId, bestPhProcId);
-
     Node::process(pheno);
 }
 
@@ -85,12 +100,12 @@ void MoveTaskToFastestHCNode::process(Phenotype& pheno) {
     const auto& graph = pheno.getGraph();
 
     // We have to buy new HC
-    auto hcProcIt = std::views::iota(0uz, graph->getProcessorsCount())
-                    | std::views::filter(
-                        [&](const size_t tgProcId) { return graph->getProc(tgProcId).isHC(); });
+    auto hcProcView = std::views::iota(0uz, graph->getProcessorsCount())
+                      | std::views::filter(
+                          [&](const size_t tgProcId) { return graph->getProc(tgProcId).isHC(); });
 
     const auto bestHcProcId = *std::ranges::min_element(
-        hcProcIt, {}, [&](const size_t tgProcId) { return graph->getTime(tgProcId, taskId); });
+        hcProcView, {}, [&](const size_t tgProcId) { return graph->getTime(tgProcId, taskId); });
 
     pheno.addProc(bestHcProcId);
 
@@ -108,13 +123,27 @@ void MoveTaskToCheapestPPNode::process(Phenotype& pheno) {
     const auto& graph = pheno.getGraph();
 
     // Don't buy new PP, assign task to cheapest existing PP
-    auto ppProcIt = std::views::iota(0uz, pheno.getPhenotypeProcCount())
-                    | std::views::filter([&](const size_t phProcId) {
-                          return graph->getProc(pheno.getTgProcId(phProcId)).isPP();
-                      });
+    auto ppProcView = std::views::iota(0uz, pheno.getPhenotypeProcCount())
+                      | std::views::filter([&](const size_t phProcId) {
+                            return graph->getProc(pheno.getTgProcId(phProcId)).isPP();
+                        });
 
-    const auto cheapestPhProcId =
-        *std::ranges::min_element(ppProcIt, {}, [&](const size_t phProcId) {
+    size_t bestPhProcId;
+    if (std::ranges::empty(ppProcView)) {
+        // If no PPs bought, then buy the best one
+        auto graphPpProcView = std::views::iota(0uz, graph->getProcessorsCount())
+                               | std::views::filter([&](const size_t tgProcId) {
+                                     return graph->getProc(tgProcId).isPP();
+                                 });
+        size_t bestToBuyId =
+            *std::ranges::min_element(graphPpProcView, {}, [&](const size_t tgProcId) {
+                const int32_t procCost = graph->getProc(tgProcId).cost;
+                const int32_t procTime = graph->getTime(tgProcId, taskId);
+                return std::pair(procCost, procTime);
+            });
+        bestPhProcId = pheno.addProc(bestToBuyId);
+    } else {
+        bestPhProcId = *std::ranges::min_element(ppProcView, {}, [&](const size_t phProcId) {
             const size_t tgProcId = pheno.getTgProcId(phProcId);
             const Processor& proc = graph->getProc(tgProcId);
             const int32_t procUsage = pheno.getPhenotypeProcUsage(phProcId);
@@ -122,8 +151,9 @@ void MoveTaskToCheapestPPNode::process(Phenotype& pheno) {
             // Sortowanie leksykograficzne bjacz
             return std::pair(proc.cost, procUsage);
         });
+    }
 
-    pheno.changeTaskProc(taskId, cheapestPhProcId);
+    pheno.changeTaskProc(taskId, bestPhProcId);
 
     Node::process(pheno);
 }
@@ -139,12 +169,12 @@ void MoveTaskToCheapestHCNode::process(Phenotype& pheno) {
     const auto& graph = pheno.getGraph();
 
     // We have to buy new HC
-    auto hcProcIt = std::views::iota(0uz, graph->getProcessorsCount())
-                    | std::views::filter(
-                        [&](const size_t tgProcId) { return graph->getProc(tgProcId).isHC(); });
+    auto hcProcView = std::views::iota(0uz, graph->getProcessorsCount())
+                      | std::views::filter(
+                          [&](const size_t tgProcId) { return graph->getProc(tgProcId).isHC(); });
 
     const auto cheapestHcProcId = *std::ranges::min_element(
-        hcProcIt, {}, [&](const size_t tgProcId) { return graph->getProc(tgProcId).cost; });
+        hcProcView, {}, [&](const size_t tgProcId) { return graph->getProc(tgProcId).cost; });
 
     pheno.addProc(cheapestHcProcId);
 
@@ -161,22 +191,25 @@ std::unique_ptr<Node> MoveTaskToLeastBusyPP::clone() const {
 void MoveTaskToLeastBusyPP::process(Phenotype& pheno) {
     const auto& graph = pheno.getGraph();
 
-    auto ppProcIt = std::views::iota(0uz, pheno.getPhenotypeProcCount())
-                    | std::views::filter([&](const size_t phProcId) {
-                          return graph->getProc(pheno.getTgProcId(phProcId)).isPP();
-                      });
+    auto ppProcView = std::views::iota(0uz, pheno.getPhenotypeProcCount())
+                      | std::views::filter([&](const size_t phProcId) {
+                            return graph->getProc(pheno.getTgProcId(phProcId)).isPP();
+                        });
 
-    const auto leastUsedPhProcId =
-        *std::ranges::min_element(ppProcIt, {}, [&](const size_t phProcId) {
-            const size_t tgProcId = pheno.getTgProcId(phProcId);
-            const Processor& proc = graph->getProc(tgProcId);
-            const int32_t procUsage = pheno.getPhenotypeProcUsage(phProcId);
+    // If no PPs bought, don't do anything
+    if (!std::ranges::empty(ppProcView)) {
+        const size_t leastUsedPhProcId =
+            *std::ranges::min_element(ppProcView, {}, [&](const size_t phProcId) {
+                const size_t tgProcId = pheno.getTgProcId(phProcId);
+                const Processor& proc = graph->getProc(tgProcId);
+                const int32_t procUsage = pheno.getPhenotypeProcUsage(phProcId);
 
-            // Sortowanie leksykograficzne bjacz
-            return std::pair(procUsage, proc.cost);
-        });
+                // Sortowanie leksykograficzne bjacz
+                return std::pair(procUsage, proc.cost);
+            });
 
-    pheno.changeTaskProc(taskId, leastUsedPhProcId);
+        pheno.changeTaskProc(taskId, leastUsedPhProcId);
+    }
 
     Node::process(pheno);
 }
