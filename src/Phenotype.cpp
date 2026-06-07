@@ -274,6 +274,7 @@ size_t Phenotype::getPhenotypeProcId(size_t taskId) const {
 size_t Phenotype::addProc(size_t tgProcId) {
     // Add new processor to our phenotype architecture
     this->phenotypeProcToTgProc.push_back(tgProcId);
+    this->phenotypeProcUsage.push_back(0);
     // Add chanells conected to proc
     return this->phenotypeProcToTgProc.size() - 1;
 }
@@ -290,11 +291,8 @@ void Phenotype::changeTaskProc(size_t taskId, size_t phenotypeProcId) {
     // Maintain correct processor usage
     this->phenotypeProcUsage[oldProcId] -=
         this->graph->getTime(this->getTgProcId(oldProcId), taskId);
-    this->phenotypeProcUsage[phenotypeProcId] -=
+    this->phenotypeProcUsage[phenotypeProcId] +=
         this->graph->getTime(this->getTgProcId(phenotypeProcId), taskId);
-
-    // New proc is not yet used
-    phenotypeProcUsage.push_back(0);
 }
 
 size_t Phenotype::getPhenotypeProcCount() const {
