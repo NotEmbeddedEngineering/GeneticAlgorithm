@@ -303,7 +303,6 @@ int32_t Phenotype::getPhenotypeProcUsage(size_t phenotypeProcId) const {
     return this->phenotypeProcUsage[phenotypeProcId];
 }
 
-void Phenotype::changeTaskChannel(size_t taskId, size_t newChannelId) {
-    size_t phProcId = this->getPhenotypeProcId(taskId);
+void Phenotype::changePhenotypeProcChannel(size_t phProcId, size_t newChannelId) {
     this->phenotypeProcToChannel[phProcId] = newChannelId;
 }

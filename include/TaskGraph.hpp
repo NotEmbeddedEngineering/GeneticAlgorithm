@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 struct Edge {
@@ -28,7 +29,7 @@ struct Channel {
     int32_t cost;
     int32_t bandwidth;
     // Stores if proc with given id is connected
-    std::vector<bool> isProcessorConnected;
+    std::unordered_set<size_t> connectedProcessors;
 };
 
 class TaskGraph {

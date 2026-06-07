@@ -27,19 +27,24 @@ std::unique_ptr<Node> PopulationGenerator::createRandomNode() {
 
     std::unique_ptr<Node> node;
 
+    auto randomPhProcId = [&](size_t taskId) {
+        size_t phProcessorId;
+        size_t tgProcessorId;
+
+        // TODO: handle channels
+        // Regenerate if invalid
+        do {
+            taskId = taskDist(rng);
+            phProcessorId = phProcDist(rng);
+            tgProcessorId = currentSolution.getTgProcId(phProcessorId);
+        } while (graph->getTime(tgProcessorId, taskId) == -1);
+
+        return phProcessorId;
+    };
+
     switch (randomFunctionType()) {
         case FunctionType::CHANGE_TASK_PROCESSOR_RANDOM: {
-            size_t phProcessorId;
-            size_t tgProcessorId;
-
-            // TODO: handle channels
-            // Regenerate if invalid
-            do {
-                taskId = taskDist(rng);
-                phProcessorId = phProcDist(rng);
-                tgProcessorId = currentSolution.getTgProcId(phProcessorId);
-            } while (graph->getTime(tgProcessorId, taskId) == -1);
-
+            size_t phProcessorId = randomPhProcId(taskId);
             node = std::make_unique<ChangeTaskProcessorRandomNode>(taskId, phProcessorId);
             break;
         }
@@ -69,12 +74,16 @@ std::unique_ptr<Node> PopulationGenerator::createRandomNode() {
             node = std::make_unique<ChangeChannelRandomNode>(taskId, channelId);
             break;
         }
-
-        case FunctionType::MOVE_PROCESSOR_TO_BEST_BANDWIDTH_CHANNEL:
-        case FunctionType::MOVE_PROCESSOR_TO_CHEAPEST_CHANNEL:
+        case FunctionType::MOVE_PROCESSOR_TO_BEST_BANDWIDTH_CHANNEL: {
+            size_t phProcessorId = randomPhProcId(taskId);
+            node = std::make_unique<MoveProcToBestBandwidthChannelNode>(phProcessorId);
+            break;
+        }
+        case FunctionType::MOVE_PROCESSOR_TO_CHEAPEST_CHANNEL: {
             // TODO: Node
             node = std::make_unique<Node>();
             break;
+        }
 
         case FunctionType::NO_OPERATION:
         case FunctionType::COUNT:

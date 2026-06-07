@@ -53,7 +53,7 @@ std::unique_ptr<Node> MoveTaskToFastestPPNode::clone() const {
 }
 
 void MoveTaskToFastestPPNode::process(Phenotype& pheno) {
-    const auto& graph = pheno.getGraph();
+    const auto graph = pheno.getGraph();
 
     // Don't buy new PP, assign task to fastest existing PP
     auto ppProcView = std::views::iota(0uz, pheno.getPhenotypeProcCount())
@@ -98,7 +98,7 @@ std::unique_ptr<Node> MoveTaskToFastestHCNode::clone() const {
 }
 
 void MoveTaskToFastestHCNode::process(Phenotype& pheno) {
-    const auto& graph = pheno.getGraph();
+    const auto graph = pheno.getGraph();
 
     // We have to buy new HC
     auto hcProcView = std::views::iota(0uz, graph->getProcessorsCount())
@@ -122,7 +122,7 @@ std::unique_ptr<Node> MoveTaskToCheapestPPNode::clone() const {
 }
 
 void MoveTaskToCheapestPPNode::process(Phenotype& pheno) {
-    const auto& graph = pheno.getGraph();
+    const auto graph = pheno.getGraph();
 
     // Don't buy new PP, assign task to cheapest existing PP
     auto ppProcView = std::views::iota(0uz, pheno.getPhenotypeProcCount())
@@ -168,7 +168,7 @@ std::unique_ptr<Node> MoveTaskToCheapestHCNode::clone() const {
 }
 
 void MoveTaskToCheapestHCNode::process(Phenotype& pheno) {
-    const auto& graph = pheno.getGraph();
+    const auto graph = pheno.getGraph();
 
     // We have to buy new HC
     auto hcProcView = std::views::iota(0uz, graph->getProcessorsCount())
@@ -192,7 +192,7 @@ std::unique_ptr<Node> MoveTaskToLeastBusyPP::clone() const {
 }
 
 void MoveTaskToLeastBusyPP::process(Phenotype& pheno) {
-    const auto& graph = pheno.getGraph();
+    const auto graph = pheno.getGraph();
 
     auto ppProcView = std::views::iota(0uz, pheno.getPhenotypeProcCount())
                       | std::views::filter([&](const size_t phProcId) {
@@ -226,6 +226,37 @@ std::unique_ptr<Node> ChangeChannelRandomNode::clone() const {
 }
 
 void ChangeChannelRandomNode::process(Phenotype& pheno) {
-    pheno.changeTaskChannel(taskId, newChannelId);
+    size_t phProcId = pheno.getPhenotypeProcId(taskId);
+    pheno.changePhenotypeProcChannel(phProcId, newChannelId);
+    Node::process(pheno);
+}
+
+// --- MoveProcToBestBandwidthChannelNode ---
+MoveProcToBestBandwidthChannelNode::MoveProcToBestBandwidthChannelNode(int phProcId)
+    : phProcId(phProcId) {}
+
+std::unique_ptr<Node> MoveProcToBestBandwidthChannelNode::clone() const {
+    return std::make_unique<MoveProcToBestBandwidthChannelNode>(*this);
+}
+
+void MoveProcToBestBandwidthChannelNode::process(Phenotype& pheno) {
+    const auto graph = pheno.getGraph();
+    auto chanView = std::views::iota(0uz, graph->getChannelsCount())
+                    | std::views::filter([&](const size_t chanId) {
+                          size_t tgProcId = pheno.getTgProcId(phProcId);
+                          return graph->getChan(chanId).connectedProcessors.contains(tgProcId);
+                      });
+
+    auto bestBandwidthChanIt = std::ranges::max_element(chanView, {}, [&](const size_t chanId) {
+        const Channel& channel = graph->getChan(chanId);
+        return std::pair(channel.bandwidth, -channel.cost);
+    });
+
+    // If found best bandwidth channel
+    if (bestBandwidthChanIt != chanView.end()) {
+        size_t bestBandwidthChanId = *bestBandwidthChanIt;
+        pheno.changePhenotypeProcChannel(phProcId, bestBandwidthChanId);
+    }
+
     Node::process(pheno);
 }

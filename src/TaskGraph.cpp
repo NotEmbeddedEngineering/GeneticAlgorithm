@@ -23,7 +23,7 @@ bool TaskGraph::canExecute(size_t procId, size_t taskId) const {
 }
 
 bool TaskGraph::isConnected(size_t channelId, size_t procId) const {
-    return channels[channelId].isProcessorConnected[procId];
+    return channels[channelId].connectedProcessors.contains(procId);
 }
 
 int32_t TaskGraph::getTime(size_t procId, size_t taskId) const {
@@ -174,12 +174,14 @@ std::vector<Channel> TaskGraph::parseComms(std::fstream& fileStream, uint32_t ch
                                            uint32_t processorCount) {
     std::vector<Channel> chanels{};
     for (uint32_t chId = 0; chId < chanelCount; ++chId) {
-        auto chan = Channel{{}, 0, 0, std::vector<bool>(processorCount)};
+        auto chan = Channel{{}, 0, 0, {}};
         fileStream >> chan.name >> chan.cost >> chan.bandwidth;
         for (uint32_t pId = 0; pId < processorCount; ++pId) {
             bool isConnected{};
             fileStream >> isConnected;
-            chan.isProcessorConnected[pId] = isConnected;
+            if (isConnected) {
+                chan.connectedProcessors.insert(pId);
+            }
         }
         chanels.push_back(chan);
     }
