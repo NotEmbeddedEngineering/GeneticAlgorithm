@@ -31,15 +31,16 @@ void Node::process(Phenotype& currentState) {
     }
 }
 
-// --- ChangeProcessorRandom ---
-ChangeProcessorRandomNode::ChangeProcessorRandomNode(const int taskId, const int newPhenotypeProcId)
+// --- ChangeTaskProcessorRandom ---
+ChangeTaskProcessorRandomNode::ChangeTaskProcessorRandomNode(const int taskId,
+                                                             const int newPhenotypeProcId)
     : taskId(taskId), newPhenotypeProcId(newPhenotypeProcId) {}
 
-std::unique_ptr<Node> ChangeProcessorRandomNode::clone() const {
-    return std::make_unique<ChangeProcessorRandomNode>(*this);
+std::unique_ptr<Node> ChangeTaskProcessorRandomNode::clone() const {
+    return std::make_unique<ChangeTaskProcessorRandomNode>(*this);
 }
 
-void ChangeProcessorRandomNode::process(Phenotype& pheno) {
+void ChangeTaskProcessorRandomNode::process(Phenotype& pheno) {
     pheno.changeTaskProc(taskId, newPhenotypeProcId);
     Node::process(pheno);
 }

@@ -28,7 +28,7 @@ std::unique_ptr<Node> PopulationGenerator::createRandomNode() {
     std::unique_ptr<Node> node;
 
     switch (randomFunctionType()) {
-        case FunctionType::CHANGE_PROCESSOR_RANDOM: {
+        case FunctionType::CHANGE_TASK_PROCESSOR_RANDOM: {
             size_t phProcessorId;
             size_t tgProcessorId;
 
@@ -40,7 +40,7 @@ std::unique_ptr<Node> PopulationGenerator::createRandomNode() {
                 tgProcessorId = currentSolution.getTgProcId(phProcessorId);
             } while (graph->getTime(tgProcessorId, taskId) == -1);
 
-            node = std::make_unique<ChangeProcessorRandomNode>(taskId, phProcessorId);
+            node = std::make_unique<ChangeTaskProcessorRandomNode>(taskId, phProcessorId);
             break;
         }
         case FunctionType::MOVE_TASK_TO_FASTEST_PP: {

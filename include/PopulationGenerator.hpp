@@ -45,7 +45,7 @@ private:
     std::mt19937_64 rng;
 
     // wybiera random funkcje
-    // trzeba będzie walnąc switcha i zwracać odpowiedni typ Node, np. CHANGE_PROCESSOR_RANDOM -> ChangeProcessorRandomNode
+    // trzeba będzie walnąc switcha i zwracać odpowiedni typ Node, np. CHANGE_TASK_PROCESSOR_RANDOM -> ChangeTaskProcessorRandomNode
     FunctionType randomFunctionType();
 
     // tworzy pojedynczego Node'a

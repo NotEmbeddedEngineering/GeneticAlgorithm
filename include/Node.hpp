@@ -23,9 +23,9 @@ public:
     std::vector<std::unique_ptr<Node>> children;
 };
 
-class ChangeProcessorRandomNode : public Node {
+class ChangeTaskProcessorRandomNode : public Node {
 public:
-    ChangeProcessorRandomNode(int taskId, int newPhenotypeProcId);
+    ChangeTaskProcessorRandomNode(int taskId, int newPhenotypeProcId);
 
     [[nodiscard]] std::unique_ptr<Node> clone() const override;
     void process(Phenotype& pheno) override;
