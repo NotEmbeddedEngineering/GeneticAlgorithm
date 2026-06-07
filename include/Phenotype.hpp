@@ -34,6 +34,8 @@ public:
     // Change processor assigned to task. (Takes care of processor usage)
     void changeTaskProc(size_t taskId, size_t phenotypeProcId);
 
+    void changeTaskChannel(size_t taskId, size_t newChannelId);
+
     std::shared_ptr<TaskGraph> getGraph() const;
 
 private:
@@ -44,6 +46,8 @@ private:
     std::vector<size_t> taskToPhenotypeProcessor{};
     // Maps Internal phenotypeProcId to Task Graph Processor
     std::vector<size_t> phenotypeProcToTgProc{};
+    // Maps internal phenotypeProcId to channel id
+    std::vector<size_t> phenotypeProcToChannel{};
 
     // Stores how much time each phenotype proc uses
     std::vector<int32_t> phenotypeProcUsage{};

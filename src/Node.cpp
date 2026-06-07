@@ -215,3 +215,16 @@ void MoveTaskToLeastBusyPP::process(Phenotype& pheno) {
 
     Node::process(pheno);
 }
+
+// --- ChangeChannelRandom ---
+ChangeChannelRandomNode::ChangeChannelRandomNode(int taskId, int newChannelId)
+    : taskId(taskId), newChannelId(newChannelId) {}
+
+std::unique_ptr<Node> ChangeChannelRandomNode::clone() const {
+    return std::make_unique<ChangeChannelRandomNode>(*this);
+}
+
+void ChangeChannelRandomNode::process(Phenotype& pheno) {
+    pheno.changeTaskChannel(taskId, newChannelId);
+    Node::process(pheno);
+}

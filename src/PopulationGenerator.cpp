@@ -24,24 +24,22 @@ std::unique_ptr<Node> PopulationGenerator::createRandomNode() {
     std::uniform_int_distribution<size_t> channelDist(0, graph->getChannelsCount() - 1);
 
     size_t taskId = taskDist(rng);
-    size_t phProcessorId = phProcDist(rng);
-    size_t tgProcessorId = currentSolution.getTgProcId(phProcessorId);
-    size_t channelId = channelDist(rng);
-
-    // Regenerate if invalid
-    while (graph->getTime(tgProcessorId, taskId) == -1) {
-        taskId = taskDist(rng);
-        phProcessorId = phProcDist(rng);
-        tgProcessorId = currentSolution.getTgProcId(phProcessorId);
-    }
-    while (!graph->isConnected(channelId, tgProcessorId)) {
-        channelId = channelDist(rng);
-    }
 
     std::unique_ptr<Node> node;
 
     switch (randomFunctionType()) {
         case FunctionType::CHANGE_PROCESSOR_RANDOM: {
+            size_t phProcessorId;
+            size_t tgProcessorId;
+
+            // TODO: handle channels
+            // Regenerate if invalid
+            do {
+                taskId = taskDist(rng);
+                phProcessorId = phProcDist(rng);
+                tgProcessorId = currentSolution.getTgProcId(phProcessorId);
+            } while (graph->getTime(tgProcessorId, taskId) == -1);
+
             node = std::make_unique<ChangeProcessorRandomNode>(taskId, phProcessorId);
             break;
         }
@@ -65,7 +63,13 @@ std::unique_ptr<Node> PopulationGenerator::createRandomNode() {
             node = std::make_unique<MoveTaskToLeastBusyPP>(taskId);
             break;
         }
-        case FunctionType::CHANGE_CHANNEL_RANDOM:
+        case FunctionType::CHANGE_CHANNEL_RANDOM: {
+            // TODO: handle edge cases when the processor can't be connected to the new channel
+            size_t channelId = channelDist(rng);
+            node = std::make_unique<ChangeChannelRandomNode>(taskId, channelId);
+            break;
+        }
+
         case FunctionType::MOVE_PROCESSOR_TO_BEST_BANDWIDTH_CHANNEL:
         case FunctionType::MOVE_PROCESSOR_TO_CHEAPEST_CHANNEL:
             // TODO: Node

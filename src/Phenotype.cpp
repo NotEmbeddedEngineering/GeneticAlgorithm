@@ -10,6 +10,7 @@
 #include <utility>
 #include <vector>
 
+// TODO: przypisać kanały tutaj
 Phenotype::Phenotype(const std::shared_ptr<TaskGraph> graph) : graph(graph) {
     // Init internals
     this->taskToPhenotypeProcessor = std::vector<size_t>(this->graph->getTaskCount(), 0);
@@ -300,4 +301,9 @@ size_t Phenotype::getPhenotypeProcCount() const {
 }
 int32_t Phenotype::getPhenotypeProcUsage(size_t phenotypeProcId) const {
     return this->phenotypeProcUsage[phenotypeProcId];
+}
+
+void Phenotype::changeTaskChannel(size_t taskId, size_t newChannelId) {
+    size_t phProcId = this->getPhenotypeProcId(taskId);
+    this->phenotypeProcToChannel[phProcId] = newChannelId;
 }

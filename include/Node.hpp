@@ -89,3 +89,15 @@ public:
 private:
     int taskId;
 };
+
+class ChangeChannelRandomNode : public Node {
+public:
+    explicit ChangeChannelRandomNode(int taskId, int newChannelId);
+
+    [[nodiscard]] std::unique_ptr<Node> clone() const override;
+    void process(Phenotype& pheno) override;
+
+private:
+    int taskId;
+    int newChannelId;
+};
