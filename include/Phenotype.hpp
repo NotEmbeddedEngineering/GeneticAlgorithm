@@ -3,6 +3,7 @@
 #include "TaskGraph.hpp"
 
 #include <memory>
+#include <optional>
 #include <unordered_set>
 #include <vector>
 
@@ -48,9 +49,12 @@ private:
     std::vector<int32_t> phenotypeProcUsage{};
 
     // --- Wyniki ---
-    std::vector<double> startTimes{};
-    std::vector<double> endTimes{};
-    int32_t time = -1;
-    int32_t cost = -1;
+    std::optional<std::vector<double>> startTimes{};
+    std::optional<std::vector<double>> endTimes{};
+
+    std::optional<std::vector<std::unordered_set<size_t>>> tgChanConectedPhProcs = std::nullopt;
+
+    std::optional<double> time = std::nullopt;
+    std::optional<double> cost = std::nullopt;
     double fitnessScore = 0.0;
 };

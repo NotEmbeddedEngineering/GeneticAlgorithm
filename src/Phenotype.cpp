@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <limits>
+#include <optional>
 #include <queue>
 #include <ranges>
 #include <unordered_map>
@@ -250,9 +251,13 @@ void Phenotype::evaluate() {
     }
     auto endTime = *std::ranges::max_element(endTimes);
 
+    this->startTimes = std::make_optional(std::move(startTimes));
+    this->endTimes = std::make_optional(std::move(endTimes));
+    this->time = std::make_optional(endTime);
+    this->cost = std::make_optional(cost);
+    this->tgChanConectedPhProcs = std::make_optional(phChanConectedPhProcs);
+
     // TODO: improve fitness fn
-    this->startTimes = startTimes;
-    this->endTimes = endTimes;
     // TODO: IMPROVE, WE HAVE TO DECIDE WEIGHS AND HOW TO TREAT NOT MEETING TIME CONSTRAINT
     this->fitnessScore = 1.0 / endTime + 1.0 / cost;
 }
