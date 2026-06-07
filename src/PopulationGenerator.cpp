@@ -80,8 +80,8 @@ std::unique_ptr<Node> PopulationGenerator::createRandomNode() {
             break;
         }
         case FunctionType::MOVE_PROCESSOR_TO_CHEAPEST_CHANNEL: {
-            // TODO: Node
-            node = std::make_unique<Node>();
+            size_t phProcessorId = randomPhProcId(taskId);
+            node = std::make_unique<MoveProcToCheapestChannelNode>(phProcessorId);
             break;
         }
 

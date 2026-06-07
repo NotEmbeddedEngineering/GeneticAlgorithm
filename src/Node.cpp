@@ -252,7 +252,34 @@ void MoveProcToBestBandwidthChannelNode::process(Phenotype& pheno) {
         return std::pair(channel.bandwidth, -channel.cost);
     });
 
-    // If found best bandwidth channel
+    if (bestBandwidthChanIt != chanView.end()) {
+        size_t bestBandwidthChanId = *bestBandwidthChanIt;
+        pheno.changePhenotypeProcChannel(phProcId, bestBandwidthChanId);
+    }
+
+    Node::process(pheno);
+}
+
+// --- MoveProcToCheapestChannelNode ---
+MoveProcToCheapestChannelNode::MoveProcToCheapestChannelNode(int phProcId) : phProcId(phProcId) {}
+
+std::unique_ptr<Node> MoveProcToCheapestChannelNode::clone() const {
+    return std::make_unique<MoveProcToCheapestChannelNode>(*this);
+}
+
+void MoveProcToCheapestChannelNode::process(Phenotype& pheno) {
+    const auto graph = pheno.getGraph();
+    auto chanView = std::views::iota(0uz, graph->getChannelsCount())
+                    | std::views::filter([&](const size_t chanId) {
+                          size_t tgProcId = pheno.getTgProcId(phProcId);
+                          return graph->getChan(chanId).connectedProcessors.contains(tgProcId);
+                      });
+
+    auto bestBandwidthChanIt = std::ranges::min_element(chanView, {}, [&](const size_t chanId) {
+        const Channel& channel = graph->getChan(chanId);
+        return std::pair(channel.cost, -channel.bandwidth);
+    });
+
     if (bestBandwidthChanIt != chanView.end()) {
         size_t bestBandwidthChanId = *bestBandwidthChanIt;
         pheno.changePhenotypeProcChannel(phProcId, bestBandwidthChanId);

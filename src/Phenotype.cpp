@@ -15,6 +15,7 @@ Phenotype::Phenotype(const std::shared_ptr<TaskGraph> graph) : graph(graph) {
     // Init internals
     this->taskToPhenotypeProcessor = std::vector<size_t>(this->graph->getTaskCount(), 0);
     this->phenotypeProcUsage = {};
+    this->phenotypeProcToChannel = std::vector<size_t>(this->graph->getTaskCount(), 0);
 
     // Count indegree for correct order of processing
     std::vector<size_t> indegree(this->graph->getTaskCount());
@@ -276,6 +277,8 @@ size_t Phenotype::addProc(size_t tgProcId) {
     // Add new processor to our phenotype architecture
     this->phenotypeProcToTgProc.push_back(tgProcId);
     this->phenotypeProcUsage.push_back(0);
+    // TODO: przydziel konkretny channel
+    this->phenotypeProcToChannel.push_back(0);
     // Add chanells conected to proc
     return this->phenotypeProcToTgProc.size() - 1;
 }

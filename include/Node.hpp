@@ -112,3 +112,14 @@ public:
 private:
     int phProcId;
 };
+
+class MoveProcToCheapestChannelNode : public Node {
+public:
+    explicit MoveProcToCheapestChannelNode(int phProcId);
+
+    [[nodiscard]] std::unique_ptr<Node> clone() const override;
+    void process(Phenotype& pheno) override;
+
+private:
+    int phProcId;
+};
