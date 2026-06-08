@@ -102,13 +102,7 @@ void PopulationGenerator::expandTree(Node* currentNode, const int remainingDepth
     if (remainingDepth <= 0)
         return;
 
-    const int depth = params.maxTreeDepth - remainingDepth;
-    const double p_d = 1.0 / (static_cast<double>(depth) + 1.0);
-
-    std::binomial_distribution<int> numChilds(params.numberOfChildren, p_d);
-
-    const int range = numChilds(rng);
-    for (int i = 0; i < range; ++i) {
+    for (int i = 0; i < params.numberOfChildren; ++i) {
         auto child = createRandomNode();
         expandTree(child.get(), remainingDepth - 1);
         currentNode->children.push_back(std::move(child));
