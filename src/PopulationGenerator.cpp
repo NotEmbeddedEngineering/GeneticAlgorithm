@@ -26,7 +26,7 @@ std::unique_ptr<Node> PopulationGenerator::createRandomNode() {
     std::uniform_int_distribution<size_t> taskDist(0, graph->getTaskCount() - 1);
     std::uniform_int_distribution<size_t> phProcDist(0,
                                                      currentSolution.getPhenotypeProcCount() - 1);
-    std::uniform_int_distribution<size_t> channelDist(0, graph->getChannelsCount() - 1);
+    //     std::uniform_int_distribution<size_t> channelDist(0, graph->getChannelsCount() - 1);
 
     size_t taskId = taskDist(rng);
 
@@ -73,22 +73,22 @@ std::unique_ptr<Node> PopulationGenerator::createRandomNode() {
             node = std::make_unique<MoveTaskToLeastBusyPP>(taskId);
             break;
         }
-        case FunctionType::CHANGE_CHANNEL_RANDOM: {
-            // TODO: handle edge cases when the processor can't be connected to the new channel
-            size_t channelId = channelDist(rng);
-            node = std::make_unique<ChangeChannelRandomNode>(taskId, channelId);
-            break;
-        }
-        case FunctionType::MOVE_PROCESSOR_TO_BEST_BANDWIDTH_CHANNEL: {
-            size_t phProcessorId = randomPhProcId(taskId);
-            node = std::make_unique<MoveProcToBestBandwidthChannelNode>(phProcessorId);
-            break;
-        }
-        case FunctionType::MOVE_PROCESSOR_TO_CHEAPEST_CHANNEL: {
-            size_t phProcessorId = randomPhProcId(taskId);
-            node = std::make_unique<MoveProcToCheapestChannelNode>(phProcessorId);
-            break;
-        }
+            //        case FunctionType::CHANGE_CHANNEL_RANDOM: {
+            //            // TODO: handle edge cases when the processor can't be connected to the new channel
+            //            size_t channelId = channelDist(rng);
+            //            node = std::make_unique<ChangeChannelRandomNode>(taskId, channelId);
+            //            break;
+            //        }
+            //        case FunctionType::MOVE_PROCESSOR_TO_BEST_BANDWIDTH_CHANNEL: {
+            //            size_t phProcessorId = randomPhProcId(taskId);
+            //            node = std::make_unique<MoveProcToBestBandwidthChannelNode>(phProcessorId);
+            //            break;
+            //        }
+            //        case FunctionType::MOVE_PROCESSOR_TO_CHEAPEST_CHANNEL: {
+            //            size_t phProcessorId = randomPhProcId(taskId);
+            //            node = std::make_unique<MoveProcToCheapestChannelNode>(phProcessorId);
+            //            break;
+            //        }
 
         case FunctionType::NO_OPERATION:
         case FunctionType::COUNT:
@@ -190,7 +190,7 @@ PopulationGenerator::evaluatePopulation(const std::vector<DecisionTree>& populat
         if (startIdx >= numElements)
             break;
 
-        threads.emplace_back([startIdx, endIdx, &population, &baseSolution, &tmpEvaluated]() {
+        threads.emplace_back([&, startIdx, endIdx]() {
             for (size_t i = startIdx; i < endIdx; ++i) {
                 Phenotype candidate = population[i].decode(baseSolution);
                 candidate.evaluate();
