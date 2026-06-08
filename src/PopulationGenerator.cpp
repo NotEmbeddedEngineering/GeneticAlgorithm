@@ -185,7 +185,7 @@ Phenotype PopulationGenerator::run() {
     int noImprovementCounter = 0;
 
     Phenotype bestPhenotype = currentSolution;
-    double bestFitness = -1e9;
+    double bestFitness = std::numeric_limits<double>::max();
 
     for (int gen = 0; gen < params.maxGenerations; ++gen) {
         auto evaluated = evaluatePopulation(population, currentSolution);
@@ -193,21 +193,22 @@ Phenotype PopulationGenerator::run() {
         const auto currentBestIterator = std::ranges::min_element(
             evaluated, {}, [](const auto& x) { return x.phenotype.getFitnessScore(); });
 
-        std::cout
-            << "Generacja "
-            << gen
-            << " - fitnessScore: "
-            << currentBestIterator->phenotype.getFitnessScore()
-            << std::endl;
-
         if (const double currentBest = currentBestIterator->phenotype.getFitnessScore();
             currentBest < bestFitness) {
+            // 1000      1200
             bestFitness = currentBest;
-            bestPhenotype = currentBestIterator->phenotype;
+            bestPhenotype = std::move(currentBestIterator->phenotype);
             noImprovementCounter = 0;
         } else {
             ++noImprovementCounter;
         }
+
+        std::cout
+            << "Generacja "
+            << gen
+            << " - fitnessScore: "
+            << bestPhenotype.getFitnessScore()
+            << std::endl;
 
         if (noImprovementCounter >= params.epsilon) {
             std::cout

@@ -19,7 +19,7 @@ int main() {
     }
 
     const EvolutionParams params(graph->getTaskCount(), graph->getProcessorsCount(), 5.0, 0.1, 0.6,
-                                 0.3, 20, 100, 4, 3);
+                                 0.3, 5, 100, 4, 3);
 
     Phenotype initialSolution(graph, 2000000, 1, 1, 0);
     initialSolution.evaluate();
