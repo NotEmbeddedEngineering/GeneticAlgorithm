@@ -190,11 +190,18 @@ Phenotype PopulationGenerator::run() {
     for (int gen = 0; gen < params.maxGenerations; ++gen) {
         auto evaluated = evaluatePopulation(population, currentSolution);
 
-        const auto currentBestIterator = std::ranges::max_element(
+        const auto currentBestIterator = std::ranges::min_element(
             evaluated, {}, [](const auto& x) { return x.phenotype.getFitnessScore(); });
 
+        std::cout
+            << "Generacja "
+            << gen
+            << " - fitnessScore: "
+            << currentBestIterator->phenotype.getFitnessScore()
+            << std::endl;
+
         if (const double currentBest = currentBestIterator->phenotype.getFitnessScore();
-            currentBest > bestFitness) {
+            currentBest < bestFitness) {
             bestFitness = currentBest;
             bestPhenotype = currentBestIterator->phenotype;
             noImprovementCounter = 0;
@@ -229,7 +236,7 @@ PopulationGenerator::selection(const std::vector<EvaluatedTree>& population, int
 
     std::vector<EvaluatedTree> pop = population;
     std::ranges::sort(pop, [](const EvaluatedTree& a, const EvaluatedTree& b) {
-        return a.phenotype.getFitnessScore() > b.phenotype.getFitnessScore(); // best first
+        return a.phenotype.getFitnessScore() < b.phenotype.getFitnessScore(); // best first
     });
 
     std::vector<double> weights(N);
@@ -270,12 +277,14 @@ PopulationGenerator::selection(const std::vector<EvaluatedTree>& population, int
     }
     return result;
 }
+
 void PopulationGenerator::dfs(std::shared_ptr<Node>& parentRoot,
-                               std::vector<std::shared_ptr<Node>*>& node) {
-        if (!parentRoot) return;
-        node.push_back(&parentRoot);
-        for (auto& child : parentRoot->children)
-            dfs(child, node);
+                              std::vector<std::shared_ptr<Node>*>& node) {
+    if (!parentRoot)
+        return;
+    node.push_back(&parentRoot);
+    for (auto& child : parentRoot->children)
+        dfs(child, node);
 }
 
 void PopulationGenerator::crossover(DecisionTree& parentA, DecisionTree& parentB) {
@@ -299,11 +308,10 @@ void PopulationGenerator::mutate(DecisionTree& tree) {
     dfs(tree.root, node);
     if (node.empty())
         return;
-    std::uniform_int_distribution<int> distNode(0, node.size()-1);
+    std::uniform_int_distribution<int> distNode(0, node.size() - 1);
     int target = distNode(rng);
     std::shared_ptr<Node>* targetNode = node[target];
     auto newNode = createRandomNode();
     newNode->children = (*targetNode)->children;
-    *targetNode=std::move(newNode);
+    *targetNode = std::move(newNode);
 }
-

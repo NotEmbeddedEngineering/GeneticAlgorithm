@@ -20,7 +20,7 @@ public:
     [[nodiscard]] virtual std::unique_ptr<Node> clone() const;
     virtual void process(Phenotype& currentState);
 
-    std::vector<std::unique_ptr<Node>> children;
+    std::vector<std::shared_ptr<Node>> children;
 };
 
 class ChangeTaskProcessorRandomNode : public Node {

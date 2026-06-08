@@ -18,17 +18,16 @@ int main() {
         exit(1);
     }
 
-    const EvolutionParams params(graph->getTaskCount(), graph->getProcessorsCount(), 1.0, 0.1, 0.6,
+    const EvolutionParams params(graph->getTaskCount(), graph->getProcessorsCount(), 5.0, 0.1, 0.6,
                                  0.3, 20, 100, 4, 3);
 
-    Phenotype initialSolution(graph, 2000000, 0, 1, 0);
+    Phenotype initialSolution(graph, 2000000, 1, 1, 0);
     initialSolution.evaluate();
     PopulationGenerator populationGenerator(graph, initialSolution, params);
 
     auto start = std::chrono::high_resolution_clock::now();
     Phenotype bestPhenotype = populationGenerator.run();
     auto end = std::chrono::high_resolution_clock::now();
-
     std::cout
         << "Czas wykonania: "
         << std::chrono::duration<double>{end - start}.count()
