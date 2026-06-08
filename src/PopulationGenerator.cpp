@@ -319,7 +319,7 @@ void PopulationGenerator::crossover(DecisionTree& parentA, DecisionTree& parentB
     dfs(parentA.root, nodesA);
     dfs(parentB.root, nodesB);
 
-    if (!nodesA.empty() || !nodesB.empty())
+    if (nodesA.empty() || nodesB.empty())
         return;
     std::uniform_int_distribution<int> distA(0, nodesA.size() - 1);
     std::uniform_int_distribution<int> distB(0, nodesB.size() - 1);
