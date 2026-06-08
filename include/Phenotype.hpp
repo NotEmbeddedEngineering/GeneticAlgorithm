@@ -10,7 +10,8 @@
 class Phenotype {
 public:
     // Creates base phenotype (fastest) with provided architecture.
-    explicit Phenotype(std::shared_ptr<TaskGraph> graph);
+    explicit Phenotype(std::shared_ptr<TaskGraph> graph, double maxTime, double timeScale,
+                       double costScale, double penalty);
 
     // wylicza fitnessScore i wpisuje go
     void evaluate();
@@ -59,5 +60,11 @@ private:
 
     std::optional<double> time = std::nullopt;
     std::optional<double> cost = std::nullopt;
+
     double fitnessScore = 0.0;
+    //    Fintess fn params
+    double maxTime;
+    double timeScale;
+    double costScale;
+    double penalty;
 };

@@ -1,6 +1,7 @@
 #include "Phenotype.hpp"
 #include <algorithm>
 #include <cstddef>
+#include <iostream>
 #include <limits>
 #include <optional>
 #include <queue>
@@ -10,8 +11,9 @@
 #include <utility>
 #include <vector>
 
-// TODO: przypisać kanały tutaj
-Phenotype::Phenotype(const std::shared_ptr<TaskGraph> graph) : graph(graph) {
+Phenotype::Phenotype(const std::shared_ptr<TaskGraph> graph, double maxTime, double timeScale,
+                     double costScale, double penalty)
+    : graph(graph), maxTime(maxTime), timeScale(timeScale), costScale(costScale), penalty(penalty) {
     // Init internals
     this->taskToPhenotypeProcessor = std::vector<size_t>(this->graph->getTaskCount(), 0);
     this->phenotypeProcUsage = {};
@@ -193,13 +195,18 @@ void Phenotype::evaluate() {
         // Select correct start time
         // On proc first come first serve
         startTimes[t] = std::max(startTimes[t], phProcFree[taskPhProc]);
-        endTimes[t] = startTimes[t] + this->graph->getTime(this->getTgProcId(taskPhProc), t);
+        auto execTime = this->graph->getTime(this->getTgProcId(taskPhProc), t);
+        endTimes[t] = startTimes[t] + execTime;
 
         // Mark as used up to task end
-        // TODO could introduce timespans fuckery as some task MABEY could go between prev phProcFree and startTimes[t]
         phProcFree[taskPhProc] = endTimes[t];
 
         for (auto [nb, data] : this->graph->getAdj()[t]) {
+            --indegree[nb];
+            if (indegree[nb] == 0) {
+                tasksToProcess.push(nb);
+            }
+
             double transferTime = 0.0;
 
             auto tPhProc = this->getPhenotypeProcId(t);
@@ -245,7 +252,7 @@ void Phenotype::evaluate() {
         cost += this->graph->getCost(tTgProc, t);
     }
 
-    //   Establish conections of procs
+    // Establish conections of procs
     for (auto chId : std::views::iota(0uz, phChanConectedPhProcs.size())) {
         auto chan = this->graph->getChan(chId);
         // FIX:? Tu nie powinien byc kosz samej szyny + koszt podlaczenia tego procesora?
@@ -259,9 +266,16 @@ void Phenotype::evaluate() {
     this->cost = std::make_optional(cost);
     this->tgChanConectedPhProcs = std::make_optional(phChanConectedPhProcs);
 
-    // TODO: improve fitness fn
-    // TODO: IMPROVE, WE HAVE TO DECIDE WEIGHS AND HOW TO TREAT NOT MEETING TIME CONSTRAINT
-    this->fitnessScore = 1.0 / endTime + 1.0 / cost;
+    this->fitnessScore = this->timeScale
+                         * endTime
+                         + this->costScale
+                         * cost
+                         + this->penalty
+                         * std::max(0.0, endTime - this->maxTime);
+
+    if (fitnessScore < 0.0) {
+        this->fitnessScore = std::numeric_limits<double>::max();
+    }
 }
 
 size_t Phenotype::getTgProcId(size_t phenotypeProcId) const {
