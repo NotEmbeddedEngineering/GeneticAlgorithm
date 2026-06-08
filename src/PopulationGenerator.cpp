@@ -321,11 +321,13 @@ void PopulationGenerator::crossover(DecisionTree& parentA, DecisionTree& parentB
 
     if (nodesA.empty() || nodesB.empty())
         return;
-    std::uniform_int_distribution<int> distA(0, nodesA.size() - 1);
-    std::uniform_int_distribution<int> distB(0, nodesB.size() - 1);
 
-    std::shared_ptr<Node>* targetA = nodesA[distA(rng)];
-    std::shared_ptr<Node>* targetB = nodesB[distB(rng)];
+    std::uniform_int_distribution<int> dist(
+        0, static_cast<int>(std::min(nodesA.size(), nodesB.size())) - 1);
+
+    int swapPos = dist(rng);
+    std::shared_ptr<Node>* targetA = nodesA[swapPos];
+    std::shared_ptr<Node>* targetB = nodesB[swapPos];
     std::swap(*targetA, *targetB);
 }
 
