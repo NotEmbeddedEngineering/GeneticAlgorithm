@@ -1,11 +1,16 @@
 #include "PopulationGenerator.hpp"
 
 #include <algorithm>
+#include <execution>
 #include <functional>
 #include <iostream>
+#include <iterator>
+#include <optional>
 #include <ostream>
 #include <queue>
+#include <thread>
 #include <valarray>
+#include <vector>
 
 PopulationGenerator::PopulationGenerator(const std::shared_ptr<TaskGraph> graph,
                                          Phenotype& initialSolution, const EvolutionParams& params)
@@ -128,10 +133,14 @@ std::vector<DecisionTree> PopulationGenerator::generatePopulationZero() {
 }
 
 std::vector<DecisionTree>
-PopulationGenerator::generateNextPopulation(const std::vector<EvaluatedTree>& prevPopulation) {
+PopulationGenerator::generateNextPopulation(std::vector<EvaluatedTree>&& prevPopulation) {
 
     std::vector<DecisionTree> best_specimen;
     best_specimen.reserve(params.populationSize);
+
+    std::ranges::sort(prevPopulation, [](const EvaluatedTree& a, const EvaluatedTree& b) {
+        return a.phenotype.getFitnessScore() < b.phenotype.getFitnessScore(); // best first
+    });
 
     const std::vector<DecisionTree> clones = selection(prevPopulation, params.numClones);
 
@@ -219,26 +228,21 @@ Phenotype PopulationGenerator::run() {
             break;
         }
 
-        population = generateNextPopulation(evaluated);
+        population = generateNextPopulation(std::move(evaluated));
     }
 
     return bestPhenotype;
 }
 
-std::vector<DecisionTree>
-PopulationGenerator::selection(const std::vector<EvaluatedTree>& population, int populationSize) {
+std::vector<DecisionTree> PopulationGenerator::selection(const std::vector<EvaluatedTree>& pop,
+                                                         int populationSize) {
 
-    const size_t N = population.size();
+    const size_t N = pop.size();
     const size_t n = populationSize;
     if (N == 0 || n == 0)
         return {};
 
     const double selectionPressure = 1.75;
-
-    std::vector<EvaluatedTree> pop = population;
-    std::ranges::sort(pop, [](const EvaluatedTree& a, const EvaluatedTree& b) {
-        return a.phenotype.getFitnessScore() < b.phenotype.getFitnessScore(); // best first
-    });
 
     std::vector<double> weights(N);
     double sum{};

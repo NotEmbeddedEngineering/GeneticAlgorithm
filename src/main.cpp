@@ -19,9 +19,9 @@ int main() {
     }
 
     const EvolutionParams params(graph->getTaskCount(), graph->getProcessorsCount(), 5.0, 0.1, 0.6,
-                                 0.3, 5, 100, 4, 3);
+                                 0.3, 15, 100, 10, 3);
 
-    Phenotype initialSolution(graph, 2000000, 1, 1, 0);
+    Phenotype initialSolution(graph, 2000000, 2, 3, 0);
     initialSolution.evaluate();
     PopulationGenerator populationGenerator(graph, initialSolution, params);
 

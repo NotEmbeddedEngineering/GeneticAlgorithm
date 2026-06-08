@@ -17,8 +17,7 @@ public:
     std::vector<DecisionTree> generatePopulationZero();
 
     // generator kolejnej Generacji X
-    std::vector<DecisionTree>
-    generateNextPopulation(const std::vector<EvaluatedTree>& prevPopulation);
+    std::vector<DecisionTree> generateNextPopulation(std::vector<EvaluatedTree>&& prevPopulation);
 
     // Ocenia populacje
     std::vector<EvaluatedTree> evaluatePopulation(const std::vector<DecisionTree>& population,
