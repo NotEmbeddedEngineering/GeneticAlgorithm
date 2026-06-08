@@ -56,4 +56,6 @@ private:
 
     // generator jednego drzewa
     DecisionTree buildSingleTree(int maxDepth);
+
+    void dfs(std::shared_ptr<Node>& parentRoot, std::vector<std::shared_ptr<Node>*>& node);
 };

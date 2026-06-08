@@ -17,8 +17,7 @@ public:
     // przetwarza i wykonuje funkcje wygenerowane wcześniej drzewo w PopulationGenerator
     [[nodiscard]] Phenotype decode(const Phenotype& baseSolution) const;
 
-private:
-    std::unique_ptr<Node> root;
+    std::shared_ptr<Node> root;
 };
 
 struct EvaluatedTree {

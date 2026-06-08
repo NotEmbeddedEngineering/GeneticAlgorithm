@@ -270,6 +270,40 @@ PopulationGenerator::selection(const std::vector<EvaluatedTree>& population, int
     }
     return result;
 }
+void PopulationGenerator::dfs(std::shared_ptr<Node>& parentRoot,
+                               std::vector<std::shared_ptr<Node>*>& node) {
+        if (!parentRoot) return;
+        node.push_back(&parentRoot);
+        for (auto& child : parentRoot->children)
+            dfs(child, node);
+}
 
-void PopulationGenerator::crossover(DecisionTree& parentA, DecisionTree& parentB) {}
-void PopulationGenerator::mutate(DecisionTree& tree) {}
+void PopulationGenerator::crossover(DecisionTree& parentA, DecisionTree& parentB) {
+    std::vector<std::shared_ptr<Node>*> nodesA;
+    std::vector<std::shared_ptr<Node>*> nodesB;
+    dfs(parentA.root, nodesA);
+    dfs(parentB.root, nodesB);
+
+    if (!nodesA.empty() || !nodesB.empty())
+        return;
+    std::uniform_int_distribution<int> distA(0, nodesA.size() - 1);
+    std::uniform_int_distribution<int> distB(0, nodesB.size() - 1);
+
+    std::shared_ptr<Node>* targetA = nodesA[distA(rng)];
+    std::shared_ptr<Node>* targetB = nodesB[distB(rng)];
+    std::swap(*targetA, *targetB);
+}
+
+void PopulationGenerator::mutate(DecisionTree& tree) {
+    std::vector<std::shared_ptr<Node>*> node;
+    dfs(tree.root, node);
+    if (node.empty())
+        return;
+    std::uniform_int_distribution<int> distNode(0, node.size()-1);
+    int target = distNode(rng);
+    std::shared_ptr<Node>* targetNode = node[target];
+    auto newNode = createRandomNode();
+    newNode->children = (*targetNode)->children;
+    *targetNode=std::move(newNode);
+}
+
