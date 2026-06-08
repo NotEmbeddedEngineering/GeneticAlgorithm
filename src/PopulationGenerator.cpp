@@ -142,18 +142,18 @@ PopulationGenerator::generateNextPopulation(std::vector<EvaluatedTree>&& prevPop
         return a.phenotype.getFitnessScore() < b.phenotype.getFitnessScore(); // best first
     });
 
-    const std::vector<DecisionTree> clones = selection(prevPopulation, params.numClones);
+    std::vector<DecisionTree> clones = selection(prevPopulation, params.numClones);
 
     // 1. Klonowanie
     for (int i = 0; i < params.numClones; ++i) {
         best_specimen.push_back(std::move(clones[i]));
     }
 
-    const std::vector<DecisionTree> mutants = selection(prevPopulation, params.numMutations);
+    std::vector<DecisionTree> mutants = selection(prevPopulation, params.numMutations);
 
     // 2. Mutacja
     for (int i = 0; i < params.numMutations; ++i) {
-        DecisionTree mutant = mutants[i];
+        DecisionTree& mutant = mutants[i];
         mutate(mutant);
         best_specimen.push_back(std::move(mutant));
     }
