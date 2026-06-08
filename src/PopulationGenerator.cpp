@@ -146,7 +146,7 @@ PopulationGenerator::generateNextPopulation(std::vector<EvaluatedTree>&& prevPop
 
     // 1. Klonowanie
     for (int i = 0; i < params.numClones; ++i) {
-        best_specimen.push_back(clones[i]);
+        best_specimen.push_back(std::move(clones[i]));
     }
 
     const std::vector<DecisionTree> mutants = selection(prevPopulation, params.numMutations);
@@ -155,7 +155,7 @@ PopulationGenerator::generateNextPopulation(std::vector<EvaluatedTree>&& prevPop
     for (int i = 0; i < params.numMutations; ++i) {
         DecisionTree mutant = mutants[i];
         mutate(mutant);
-        best_specimen.push_back(mutant);
+        best_specimen.push_back(std::move(mutant));
     }
 
     // 3. Krzyżowanie
@@ -167,8 +167,8 @@ PopulationGenerator::generateNextPopulation(std::vector<EvaluatedTree>&& prevPop
         DecisionTree& father = parents[i + 1];
         crossover(mother, father);
 
-        best_specimen.push_back(mother);
-        best_specimen.push_back(father);
+        best_specimen.push_back(std::move(mother));
+        best_specimen.push_back(std::move(father));
     }
 
     return best_specimen;
