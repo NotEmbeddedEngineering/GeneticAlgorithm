@@ -176,14 +176,41 @@ PopulationGenerator::generateNextPopulation(std::vector<EvaluatedTree>&& prevPop
 
 std::vector<EvaluatedTree>
 PopulationGenerator::evaluatePopulation(const std::vector<DecisionTree>& population,
-                                        const Phenotype& baseSolition) {
-    std::vector<EvaluatedTree> evaluatedPopulation;
-    evaluatedPopulation.reserve(population.size());
+                                        const Phenotype& baseSolution) {
+    const size_t numElements = population.size();
+    if (numElements == 0)
+        return {};
 
-    for (const auto& tree : population) {
-        Phenotype candidate = tree.decode(baseSolition);
-        candidate.evaluate();
-        evaluatedPopulation.emplace_back(tree, candidate);
+    std::vector<std::optional<EvaluatedTree>> tmpEvaluated(numElements);
+
+    const unsigned int numThreads = std::max(1u, std::thread::hardware_concurrency());
+    std::vector<std::jthread> threads;
+    threads.reserve(numThreads);
+
+    size_t chunkSize = (numElements + numThreads - 1) / numThreads;
+
+    for (unsigned int t = 0; t < numThreads; ++t) {
+        size_t startIdx = t * chunkSize;
+        size_t endIdx = std::min(startIdx + chunkSize, numElements);
+
+        if (startIdx >= numElements)
+            break;
+
+        threads.emplace_back([startIdx, endIdx, &population, &baseSolution, &tmpEvaluated]() {
+            for (size_t i = startIdx; i < endIdx; ++i) {
+                Phenotype candidate = population[i].decode(baseSolution);
+                candidate.evaluate();
+                tmpEvaluated[i].emplace(population[i], candidate);
+            }
+        });
+    }
+
+    threads.clear();
+
+    std::vector<EvaluatedTree> evaluatedPopulation;
+    evaluatedPopulation.reserve(numElements);
+    for (auto& opt : tmpEvaluated) {
+        evaluatedPopulation.push_back(std::move(*opt));
     }
 
     return evaluatedPopulation;
