@@ -2,6 +2,10 @@
 
 ## Uruchomienie
 
+Aby uruchomić program, wystarczy otworzyć folder w Visual Studio i uruchomić w wersji Release.
+
+Program można również uruchomić bez podania żadnych parametrów, wtedy zostaną ustawione parametry domyślne.
+
 ```cmd
 ./GeneticAlgorithm filePath alpha beta gamma delta epsilon maxGeneration treeDepth treeNodeKids maxtime timeScaleEvaluate costScaleEvaluate penaltyEvaluate
 ```
