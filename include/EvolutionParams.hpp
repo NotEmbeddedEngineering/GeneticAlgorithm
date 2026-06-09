@@ -1,6 +1,7 @@
 #pragma once
 
 struct EvolutionParams {
+    EvolutionParams() = default;
     EvolutionParams(int taskCount, int processorCount, double alpha = 5.0, double beta = 0.1,
                     double gamma = 0.6, double delta = 0.3, int epsilon = 20,
                     int maxGenerations = 100, int maxTreeDepth = 4, int numberOfChildren = 3);

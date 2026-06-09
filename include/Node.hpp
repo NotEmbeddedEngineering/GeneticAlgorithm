@@ -79,9 +79,9 @@ private:
     int taskId;
 };
 
-class MoveTaskToLeastBusyPP : public Node {
+class MoveTaskToLeastBusyPPNode : public Node {
 public:
-    explicit MoveTaskToLeastBusyPP(int taskId);
+    explicit MoveTaskToLeastBusyPPNode(int taskId);
 
     [[nodiscard]] std::unique_ptr<Node> clone() const override;
     void process(Phenotype& pheno) override;
@@ -90,36 +90,35 @@ private:
     int taskId;
 };
 
-class ChangeChannelRandomNode : public Node {
+class MoveTaskToMostBusyPPNode : public Node {
 public:
-    explicit ChangeChannelRandomNode(int taskId, int newChannelId);
+    explicit MoveTaskToMostBusyPPNode(int taskId);
 
     [[nodiscard]] std::unique_ptr<Node> clone() const override;
     void process(Phenotype& pheno) override;
 
 private:
     int taskId;
-    int newChannelId;
 };
 
-class MoveProcToBestBandwidthChannelNode : public Node {
+class BuyRandomPPNode : public Node {
 public:
-    explicit MoveProcToBestBandwidthChannelNode(int phProcId);
+    explicit BuyRandomPPNode(int randomPPId);
 
     [[nodiscard]] std::unique_ptr<Node> clone() const override;
     void process(Phenotype& pheno) override;
 
 private:
-    int phProcId;
+    int randomPPId;
 };
 
-class MoveProcToCheapestChannelNode : public Node {
+class BuyBestPPForTaskNode : public Node {
 public:
-    explicit MoveProcToCheapestChannelNode(int phProcId);
+    explicit BuyBestPPForTaskNode(int taskId);
 
     [[nodiscard]] std::unique_ptr<Node> clone() const override;
     void process(Phenotype& pheno) override;
 
 private:
-    int phProcId;
+    int taskId;
 };
