@@ -87,7 +87,7 @@ std::unique_ptr<Node> PopulationGenerator::createRandomNode() {
             }
 
             std::vector<size_t> randomPPId;
-            std::sample(ppProcIds.begin(), ppProcIds.end(), std::back_inserter(randomPPId), 1, rng);
+            std::ranges::sample(ppProcIds, std::back_inserter(randomPPId), 1, rng);
 
             node = std::make_unique<BuyRandomPPNode>(randomPPId[0]);
             break;
