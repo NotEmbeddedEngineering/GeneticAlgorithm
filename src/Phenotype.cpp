@@ -18,7 +18,6 @@ Phenotype::Phenotype(const std::shared_ptr<TaskGraph> graph, double maxTime, dou
     // Init internals
     this->taskToPhenotypeProcessor = std::vector<size_t>(this->graph->getTaskCount(), 0);
     this->phenotypeProcUsage = {};
-    //     this->phenotypeProcToChannel = std::vector<size_t>(this->graph->getTaskCount(), 0);
 
     // Count indegree for correct order of processing
     std::vector<size_t> indegree(this->graph->getTaskCount());
@@ -76,7 +75,6 @@ Phenotype::Phenotype(const std::shared_ptr<TaskGraph> graph, double maxTime, dou
             continue;
         }
 
-        // Now Funcking Data Transfer Shenaniganss
         // I cooked (https://pin.it/7w6D3f6lB) ok?? It was 3 lines without chanels
         auto calculateEndTime = [&](int32_t predId) -> double {
             auto predTgProc = this->getTgProcId(this->getPhenotypeProcId(predId));
@@ -162,7 +160,6 @@ Phenotype::Phenotype(const std::shared_ptr<TaskGraph> graph, double maxTime, dou
 }
 
 void Phenotype::evaluate() {
-    // TODO DO THE CHORE
     // Count indegree for correct order of processing
     std::vector<size_t> indegree(this->graph->getTaskCount());
     std::vector<std::vector<size_t>> predecessors(this->graph->getTaskCount(),
@@ -227,7 +224,6 @@ void Phenotype::evaluate() {
         }
     }
 
-    // Now cost CHORE
     // Check if proc is used.
     std::vector<bool> phProcUsed(this->phenotypeProcToTgProc.size(), 0);
     for (auto t : std::views::iota(0uz, this->graph->getTaskCount())) {
@@ -238,7 +234,6 @@ void Phenotype::evaluate() {
     // Add cost of used PPs
     for (auto phProc : std::views::iota(0uz, this->phenotypeProcToTgProc.size())) {
         if (phProcUsed[phProc] == false) {
-            // TODO ADD REMOVAL AND UPDATE TO MAP
             auto taskTgProc = this->graph->getProc(this->getTgProcId(phProc));
             if (taskTgProc.isPP()) {
                 // Add cost
@@ -256,7 +251,7 @@ void Phenotype::evaluate() {
     // Establish conections of procs
     for (auto chId : std::views::iota(0uz, phChanConectedPhProcs.size())) {
         auto chan = this->graph->getChan(chId);
-        // FIX:? Tu nie powinien byc kosz samej szyny + koszt podlaczenia tego procesora?
+        // FIX:? Tu nie powinien byc koszt samej szyny + koszt podlaczenia tego procesora?
         cost += chan.cost * phChanConectedPhProcs[chId].size();
     }
     auto endTime = *std::ranges::max_element(endTimes);
@@ -292,8 +287,6 @@ size_t Phenotype::addProc(size_t tgProcId) {
     // Add new processor to our phenotype architecture
     this->phenotypeProcToTgProc.push_back(tgProcId);
     this->phenotypeProcUsage.push_back(0);
-    // TODO: przydziel konkretny channel
-    //     this->phenotypeProcToChannel.push_back(0);
     // Add chanells conected to proc
     return this->phenotypeProcToTgProc.size() - 1;
 }

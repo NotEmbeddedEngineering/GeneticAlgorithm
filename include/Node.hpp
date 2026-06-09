@@ -89,37 +89,3 @@ public:
 private:
     int taskId;
 };
-
-class ChangeChannelRandomNode : public Node {
-public:
-    explicit ChangeChannelRandomNode(int taskId, int newChannelId);
-
-    [[nodiscard]] std::unique_ptr<Node> clone() const override;
-    void process(Phenotype& pheno) override;
-
-private:
-    int taskId;
-    int newChannelId;
-};
-
-class MoveProcToBestBandwidthChannelNode : public Node {
-public:
-    explicit MoveProcToBestBandwidthChannelNode(int phProcId);
-
-    [[nodiscard]] std::unique_ptr<Node> clone() const override;
-    void process(Phenotype& pheno) override;
-
-private:
-    int phProcId;
-};
-
-class MoveProcToCheapestChannelNode : public Node {
-public:
-    explicit MoveProcToCheapestChannelNode(int phProcId);
-
-    [[nodiscard]] std::unique_ptr<Node> clone() const override;
-    void process(Phenotype& pheno) override;
-
-private:
-    int phProcId;
-};
