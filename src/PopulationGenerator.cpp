@@ -24,6 +24,7 @@ FunctionType PopulationGenerator::randomFunctionType() {
 
 std::unique_ptr<Node> PopulationGenerator::createRandomNode() {
     std::uniform_int_distribution<size_t> taskDist(0, graph->getTaskCount() - 1);
+    std::uniform_int_distribution<size_t> tgProcDist(0, graph->getProcessorsCount() - 1);
     std::uniform_int_distribution<size_t> phProcDist(0,
                                                      currentSolution.getPhenotypeProcCount() - 1);
 
@@ -69,6 +70,19 @@ std::unique_ptr<Node> PopulationGenerator::createRandomNode() {
         }
         case FunctionType::MOVE_TASK_TO_LEAST_BUSY_PP: {
             node = std::make_unique<MoveTaskToLeastBusyPP>(taskId);
+            break;
+        }
+        case FunctionType::BUY_RANDOM_PP: {
+            std::vector<size_t> ppProcIds = std::views::iota(0uz, graph->getProcessorsCount())
+                                            | std::views::filter([&](const size_t tgProcId) {
+                                                  return graph->getProc(tgProcId).isPP();
+                                              })
+                                            | std::ranges::to<std::vector<size_t>>();
+
+            std::vector<size_t> randomPPId;
+            std::sample(ppProcIds.begin(), ppProcIds.end(), std::back_inserter(randomPPId), 1, rng);
+
+            node = std::make_unique<BuyRandomPP>(randomPPId[0]);
             break;
         }
 

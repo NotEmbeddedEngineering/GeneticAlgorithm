@@ -223,3 +223,15 @@ void MoveTaskToLeastBusyPP::process(Phenotype& pheno) {
 
     Node::process(pheno);
 }
+
+// --- BuyRandomPP ---
+BuyRandomPP::BuyRandomPP(int randomPPId) : randomPPId(randomPPId) {}
+
+std::unique_ptr<Node> BuyRandomPP::clone() const {
+    return std::make_unique<BuyRandomPP>(*this);
+}
+
+void BuyRandomPP::process(Phenotype& pheno) {
+    pheno.addProc(randomPPId);
+    Node::process(pheno);
+}
