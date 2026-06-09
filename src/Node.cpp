@@ -41,7 +41,14 @@ std::unique_ptr<Node> ChangeTaskProcessorRandomNode::clone() const {
 }
 
 void ChangeTaskProcessorRandomNode::process(Phenotype& pheno) {
-    pheno.changeTaskProc(taskId, newPhenotypeProcId);
+    size_t tgProcId = pheno.getTgProcId(newPhenotypeProcId);
+
+    size_t targetPhrocId = newPhenotypeProcId;
+    if (pheno.getGraph()->getProc(tgProcId).isHC()) {
+        targetPhrocId = pheno.addProc(tgProcId);
+    }
+
+    pheno.changeTaskProc(taskId, targetPhrocId);
     Node::process(pheno);
 }
 
