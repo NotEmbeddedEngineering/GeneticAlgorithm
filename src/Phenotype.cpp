@@ -6,11 +6,11 @@
 #include <optional>
 #include <queue>
 #include <ranges>
+#include <sstream>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
 #include <vector>
-#include <sstream>
 
 Phenotype::Phenotype(const std::shared_ptr<TaskGraph> graph, double maxTime, double timeScale,
                      double costScale, double penalty)
@@ -306,21 +306,48 @@ std::shared_ptr<TaskGraph> Phenotype::getGraph() const {
 std::string Phenotype::toString() const {
     std::stringstream res;
     std::unordered_map<size_t, std::vector<size_t>> assignments;
-    for(size_t taskID{}; taskID<taskToPhenotypeProcessor.size(); ++taskID){
+    for (size_t taskID{}; taskID < taskToPhenotypeProcessor.size(); ++taskID) {
         auto phenProcID = taskToPhenotypeProcessor.at(taskID);
-        if(!assignments.contains(phenProcID)) assignments.insert({phenProcID,{taskID}});
-        else assignments.at(phenProcID).push_back(taskID);
+        if (!assignments.contains(phenProcID))
+            assignments.insert({phenProcID, {taskID}});
+        else {
+            assignments.at(phenProcID).push_back(taskID);
+        }
     }
-    for(auto& [proc, tasks]: assignments){
+
+    for (auto i = 0uz; i < this->phenotypeProcToTgProc.size(); ++i) {
+        auto tgProcId = this->getTgProcId(phenotypeProcToTgProc[i]);
+        std::string ptype = (graph->getProc(tgProcId).isHC()) ? ("HC") : ("PP");
+        std::cout << "PhProc" << i << " is " << ptype << " and \n";
+        if (this->graph->getProc(tgProcId).isPP()) {
+            std::cout
+                << "Phenotype has PP with usage "
+                << this->getPhenotypeProcUsage(i)
+                << " and is assigned "
+                << assignments[i].size()
+                << " tasks.\n";
+        }
+    }
+
+    for (auto& [proc, tasks] : assignments) {
         auto tgproc = getTgProcId(proc);
-        std::string ptype = (graph->getProc(tgproc).isHC())? ("HC"):("PP");
-        if(phenotypeProcToChannel.size()>proc){
-            res<<std::format("Proc Type: {} ({}) ID: {} Channel: {} Tasks:",tgproc,ptype,proc,graph->getChan( phenotypeProcToChannel.at(proc)).name);
-        } 
-        else res<<std::format("Proc Type: {} ({}) ID: {} Tasks:",tgproc,ptype,proc);
-        for(auto task:tasks) res<<" "<<task;
-        res<<'\n';
+        std::string ptype = (graph->getProc(tgproc).isHC()) ? ("HC") : ("PP");
+        res << std::format("Proc Type: {} ({}) ID: {} Tasks:", tgproc, ptype, proc);
+        for (auto task : tasks)
+            res << " " << task;
+        res << '\n';
     }
+
+    if (auto chanProcs = this->tgChanConectedPhProcs) {
+        for (auto chId = 0uz; chId < chanProcs->size(); ++chId) {
+            res << this->graph->getChan(chId).name << ": ";
+            for (auto phProcId : tgChanConectedPhProcs.value()[chId]) {
+                res << phProcId << " ";
+            }
+            res << '\n';
+        }
+    }
+
     return res.str();
 }
 
@@ -340,8 +367,4 @@ size_t Phenotype::getPhenotypeProcCount() const {
 }
 int32_t Phenotype::getPhenotypeProcUsage(size_t phenotypeProcId) const {
     return this->phenotypeProcUsage[phenotypeProcId];
-}
-
-void Phenotype::changePhenotypeProcChannel(size_t phProcId, size_t newChannelId) {
-    this->phenotypeProcToChannel[phProcId] = newChannelId;
 }
