@@ -79,9 +79,9 @@ private:
     int taskId;
 };
 
-class MoveTaskToLeastBusyPP : public Node {
+class MoveTaskToLeastBusyPPNode : public Node {
 public:
-    explicit MoveTaskToLeastBusyPP(int taskId);
+    explicit MoveTaskToLeastBusyPPNode(int taskId);
 
     [[nodiscard]] std::unique_ptr<Node> clone() const override;
     void process(Phenotype& pheno) override;
@@ -90,9 +90,20 @@ private:
     int taskId;
 };
 
-class BuyRandomPP : public Node {
+class MoveTaskToMostBusyPPNode : public Node {
 public:
-    explicit BuyRandomPP(int randomPPId);
+    explicit MoveTaskToMostBusyPPNode(int taskId);
+
+    [[nodiscard]] std::unique_ptr<Node> clone() const override;
+    void process(Phenotype& pheno) override;
+
+private:
+    int taskId;
+};
+
+class BuyRandomPPNode : public Node {
+public:
+    explicit BuyRandomPPNode(int randomPPId);
 
     [[nodiscard]] std::unique_ptr<Node> clone() const override;
     void process(Phenotype& pheno) override;

@@ -69,7 +69,11 @@ std::unique_ptr<Node> PopulationGenerator::createRandomNode() {
             break;
         }
         case FunctionType::MOVE_TASK_TO_LEAST_BUSY_PP: {
-            node = std::make_unique<MoveTaskToLeastBusyPP>(taskId);
+            node = std::make_unique<MoveTaskToLeastBusyPPNode>(taskId);
+            break;
+        }
+        case FunctionType::MOVE_TASK_TO_MOST_BUSY_PP: {
+            node = std::make_unique<MoveTaskToMostBusyPPNode>(taskId);
             break;
         }
         case FunctionType::BUY_RANDOM_PP: {
