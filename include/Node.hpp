@@ -101,4 +101,13 @@ private:
     int randomPPId;
 };
 
-// Node do kupowania najlepszego PP dla losowego taska
+class BuyBestPPForTaskNode : public Node {
+public:
+    explicit BuyBestPPForTaskNode(int taskId);
+
+    [[nodiscard]] std::unique_ptr<Node> clone() const override;
+    void process(Phenotype& pheno) override;
+
+private:
+    int taskId;
+};

@@ -78,11 +78,18 @@ std::unique_ptr<Node> PopulationGenerator::createRandomNode() {
                                                   return graph->getProc(tgProcId).isPP();
                                               })
                                             | std::ranges::to<std::vector<size_t>>();
+            if (ppProcIds.empty()) {
+                return createRandomNode();
+            }
 
             std::vector<size_t> randomPPId;
             std::sample(ppProcIds.begin(), ppProcIds.end(), std::back_inserter(randomPPId), 1, rng);
 
-            node = std::make_unique<BuyRandomPP>(randomPPId[0]);
+            node = std::make_unique<BuyRandomPPNode>(randomPPId[0]);
+            break;
+        }
+        case FunctionType::BUY_BEST_PP_FOR_TASK: {
+            node = std::make_unique<BuyBestPPForTaskNode>(taskId);
             break;
         }
 

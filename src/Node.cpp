@@ -224,14 +224,39 @@ void MoveTaskToLeastBusyPP::process(Phenotype& pheno) {
     Node::process(pheno);
 }
 
-// --- BuyRandomPP ---
-BuyRandomPP::BuyRandomPP(int randomPPId) : randomPPId(randomPPId) {}
+// --- BuyRandomPPNode ---
+BuyRandomPPNode::BuyRandomPPNode(int randomPPId) : randomPPId(randomPPId) {}
 
-std::unique_ptr<Node> BuyRandomPP::clone() const {
-    return std::make_unique<BuyRandomPP>(*this);
+std::unique_ptr<Node> BuyRandomPPNode::clone() const {
+    return std::make_unique<BuyRandomPPNode>(*this);
 }
 
-void BuyRandomPP::process(Phenotype& pheno) {
+void BuyRandomPPNode::process(Phenotype& pheno) {
     pheno.addProc(randomPPId);
+    Node::process(pheno);
+}
+
+// --- BuyBestPPForTaskNode ---
+BuyBestPPForTaskNode::BuyBestPPForTaskNode(int taskId) : taskId(taskId) {}
+
+std::unique_ptr<Node> BuyBestPPForTaskNode::clone() const {
+    return std::make_unique<BuyBestPPForTaskNode>(*this);
+}
+
+void BuyBestPPForTaskNode::process(Phenotype& pheno) {
+    const auto graph = pheno.getGraph();
+
+    auto ppProcView = std::views::iota(0uz, graph->getProcessorsCount())
+                      | std::views::filter(
+                          [&](const size_t phProcId) { return graph->getProc(phProcId).isPP(); });
+
+    if (std::ranges::empty(ppProcView)) {
+        return;
+    }
+
+    size_t bestPPId = *std::ranges::min_element(ppProcView, {}, [&](const size_t ppId) {
+        return std::pair(graph->getProc(ppId).cost, graph->getTime(ppId, taskId));
+    });
+    pheno.addProc(bestPPId);
     Node::process(pheno);
 }
