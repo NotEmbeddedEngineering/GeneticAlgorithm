@@ -28,7 +28,6 @@ public:
     size_t getPhenotypeProcCount() const;
     // Get the time a processor is used
     int32_t getPhenotypeProcUsage(size_t phenotypeProcId) const;
-    void changePhenotypeProcChannel(size_t phProcId, size_t newChannelId) {};
 
     // Adds internally new proc based on TaskGraph processor id and returns internal mapping
     size_t addProc(size_t tgProcId);

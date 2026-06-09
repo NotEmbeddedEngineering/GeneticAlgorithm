@@ -308,26 +308,12 @@ std::string Phenotype::toString() const {
         }
     }
 
-    for (auto i = 0uz; i < this->phenotypeProcToTgProc.size(); ++i) {
-        auto tgProcId = this->getTgProcId(phenotypeProcToTgProc[i]);
-        std::string ptype = (graph->getProc(tgProcId).isHC()) ? ("HC") : ("PP");
-        std::cout << "PhProc" << i << " is " << ptype << " and \n";
-        if (this->graph->getProc(tgProcId).isPP()) {
-            std::cout
-                << "Phenotype has PP with usage "
-                << this->getPhenotypeProcUsage(i)
-                << " and is assigned "
-                << assignments[i].size()
-                << " tasks.\n";
-        }
-    }
-
     for (auto& [proc, tasks] : assignments) {
         auto tgproc = getTgProcId(proc);
         std::string ptype = (graph->getProc(tgproc).isHC()) ? ("HC") : ("PP");
         res << std::format("Proc Type: {} ({}) ID: {} Tasks:", tgproc, ptype, proc);
         for (auto task : tasks)
-            res << " " << task;
+            res << " T" << task << "(" << this->startTimes.value()[task] << ")";
         res << '\n';
     }
 
@@ -340,6 +326,12 @@ std::string Phenotype::toString() const {
             res << '\n';
         }
     }
+    res
+        << "System will finish calculations "
+        << this->time.value()
+        << " and will cost "
+        << this->cost.value()
+        << "\n";
 
     return res.str();
 }
