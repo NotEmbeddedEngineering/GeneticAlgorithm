@@ -37,6 +37,7 @@ public:
     void changeTaskProc(size_t taskId, size_t phenotypeProcId);
 
     std::shared_ptr<TaskGraph> getGraph() const;
+    std::string toString() const;
 
 private:
     std::shared_ptr<TaskGraph> graph;

@@ -10,6 +10,7 @@
 #include <unordered_set>
 #include <utility>
 #include <vector>
+#include <sstream>
 
 Phenotype::Phenotype(const std::shared_ptr<TaskGraph> graph, double maxTime, double timeScale,
                      double costScale, double penalty)
@@ -300,6 +301,27 @@ size_t Phenotype::addProc(size_t tgProcId) {
 std::shared_ptr<TaskGraph> Phenotype::getGraph() const {
     auto tg_ptr = this->graph;
     return tg_ptr;
+}
+
+std::string Phenotype::toString() const {
+    std::stringstream res;
+    std::unordered_map<size_t, std::vector<size_t>> assignments;
+    for(size_t taskID{}; taskID<taskToPhenotypeProcessor.size(); ++taskID){
+        auto phenProcID = taskToPhenotypeProcessor.at(taskID);
+        if(!assignments.contains(phenProcID)) assignments.insert({phenProcID,{taskID}});
+        else assignments.at(phenProcID).push_back(taskID);
+    }
+    for(auto& [proc, tasks]: assignments){
+        auto tgproc = getTgProcId(proc);
+        std::string ptype = (graph->getProc(tgproc).isHC())? ("HC"):("PP");
+        if(phenotypeProcToChannel.size()>proc){
+            res<<std::format("Proc Type: {} ({}) ID: {} Channel: {} Tasks:",tgproc,ptype,proc,graph->getChan( phenotypeProcToChannel.at(proc)).name);
+        } 
+        else res<<std::format("Proc Type: {} ({}) ID: {} Tasks:",tgproc,ptype,proc);
+        for(auto task:tasks) res<<" "<<task;
+        res<<'\n';
+    }
+    return res.str();
 }
 
 void Phenotype::changeTaskProc(size_t taskId, size_t phenotypeProcId) {

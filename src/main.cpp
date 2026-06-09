@@ -23,6 +23,7 @@ int main() {
 
     Phenotype initialSolution(graph, 2000000, 1, 6, 0);
     initialSolution.evaluate();
+    std::cout<<"Initial solution: \n"<<initialSolution.toString();
     PopulationGenerator populationGenerator(graph, initialSolution, params);
 
     auto start = std::chrono::high_resolution_clock::now();
@@ -33,6 +34,7 @@ int main() {
         << std::chrono::duration<double>{end - start}.count()
         << "s"
         << std::endl;
+    std::cout<< "Fenotyp: \n"<< bestPhenotype.toString();
 
     return 0;
 }
